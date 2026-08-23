@@ -27,19 +27,39 @@ class XGrowthAgent(BaseAgent):
         }
 
     async def plan(self, perception: dict) -> list:
-        return ["extract_topic", "generate_draft", "post_for_review"]
+        return ["extract_topic", "choose_style", "generate_draft", "post_for_review"]
 
     async def act(self, plan: list, task: Task) -> ActionResult:
         try:
-            from skills.x_growth.thread_factory.implementation import generate_thread
-            topic = task.title.replace("X Growth:", "").strip() or task.title
-            result = generate_thread(topic=topic, goal="growth", tone="builder")
-            draft = result.get("draft", "")
+            from skills.x_growth.thread_factory.implementation import generate_thread, format_for_x
+            topic = task.title
+            for prefix in ["X Growth:", "Growth:", "Thread:"]:
+                topic = topic.replace(prefix, "").strip()
+            if not topic:
+                topic = "RepoMind multi-agent OS"
+
+            # Choose style from labels or default
+            style = "solo-dev"
+            labels = [l.lower() for l in task.labels]
+            if "contrarian" in labels:
+                style = "contrarian"
+            elif "insight" in labels:
+                style = "insight"
+            elif "build-log" in labels or "log" in labels:
+                style = "build-log"
+
+            result = generate_thread(topic=topic, style=style, length=6, include_visuals=True)
+            draft = format_for_x(result.get("thread", []))
+            visuals = result.get("visual_ideas", [])
+
             comment = (
-                f"**XGrowthAgent** draft ready for review:\n\n"
+                f"**XGrowthAgent** draft ready for review (style: `{style}`):\n\n"
                 f"```\n{draft}\n```\n\n"
-                f"*Human approval required before any live posting.*"
             )
+            if visuals:
+                comment += "**Visual ideas:**\n" + "\n".join(f"- {v}" for v in visuals) + "\n\n"
+            comment += "*Human approval required before any live posting.*"
+
             if self.github:
                 self.github.comment_on_issue(task.issue_number, comment)
             return ActionResult(success=True, summary="Thread draft posted for review", output=result)
