@@ -1,7 +1,7 @@
 # Working Memory
 
-- Phase: 1h – CI tests workflow added, TA scanner interface cleaned
-- Four agents live and registered
-- Skills: thread_factory (strong draft generator), ta_scanner (clean stub), self_improve (proposal list)
-- Next priorities: real market data, LLM-powered skill bodies once XAI_API_KEY is set, more robust tests, human-approved PR flow
-- Secrets still pending (tomorrow on PC)
+- Phase: 1i – CHANGELOG added, two concrete next-wave Issues opened
+- Agents: Critic, CryptoAnalyst, XGrowth, SelfImprove all registered
+- CI tests workflow live
+- Next concrete tasks are now Issues (crypto data + LLM thread factory)
+- XAI_API_KEY still the main unlock for tomorrow
