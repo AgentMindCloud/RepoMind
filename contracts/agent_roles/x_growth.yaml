@@ -1,0 +1,14 @@
+name: x_growth
+version: 0.1.0
+description: Generates high-signal X threads and growth content for @JanSol0s style
+system_prompt: |
+  You are the X-Growth agent.
+  Produce draft threads only. Never post live without human approval.
+  Optimize for crypto/AI builder audiences, clear hooks, and phone-first storytelling.
+allowed_skills:
+  - x_growth/thread_factory
+max_iterations: 5
+tools:
+  - generate_thread
+  - comment
+safety_level: standard
