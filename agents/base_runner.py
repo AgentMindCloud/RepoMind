@@ -1,4 +1,4 @@
-"""Entry point for GitHub Actions / local runs."""
+"""Entry point for GitHub Actions and local runs."""
 import os
 import sys
 import argparse
@@ -15,25 +15,29 @@ def main():
 
     token = os.getenv("GITHUB_TOKEN")
     if not token:
-        print("GITHUB_TOKEN not set")
+        print("GITHUB_TOKEN not set – cannot proceed")
         sys.exit(1)
 
-    github = GitHubClient(token=token, repo_full_name=args.repo)
-    llm = LLMClient()
-    orch = Orchestrator(github=github, llm=llm)
+    try:
+        github = GitHubClient(token=token, repo_full_name=args.repo)
+        llm = LLMClient()
+        orch = Orchestrator(github=github, llm=llm)
 
-    if args.issue:
-        task = github.get_task(args.issue)
-        print(f"Processing issue #{task.issue_number}: {task.title}")
-        result = orch.run_task_sync(task)
-        print(result.summary)
-    else:
-        tasks = github.get_open_tasks(labels=["task", "agent"])
-        print(f"Found {len(tasks)} open tasks")
-        for t in tasks[:3]:  # limit for safety
-            print(f"→ #{t.issue_number} {t.title}")
-            result = orch.run_task_sync(t)
-            print("  ", result.summary)
+        if args.issue:
+            task = github.get_task(args.issue)
+            print(f"Processing issue #{task.issue_number}: {task.title}")
+            result = orch.run_task_sync(task)
+            print("Result:", result.summary)
+        else:
+            tasks = github.get_open_tasks(labels=["task", "agent", "critic"])
+            print(f"Found {len(tasks)} candidate tasks")
+            for t in tasks[:5]:  # safety limit
+                print(f"→ #{t.issue_number} {t.title}")
+                result = orch.run_task_sync(t)
+                print("  ", result.summary)
+    except Exception as e:
+        print(f"Runner error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

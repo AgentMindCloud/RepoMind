@@ -1,15 +1,17 @@
 # Working Memory
 
-**Current phase:** 1b – Runtime wired, first skills live
+**Phase 1d complete**
 
-## Active components
-- core/: models, agent_base, github_client, llm, safety, orchestrator, skill_loader
-- agents/base_runner.py (now called by the workflow)
-- skills/crypto/ta_scanner + skills/x_growth/thread_factory
+Live:
+- CriticAgent registered in Orchestrator
+- base_runner uses full Orchestrator + routing
+- self_improve/code_evolver skill stub added
+- Agent role contracts for critic / x_growth / crypto_analyst
+- 42+ files on main
 
-## Next focus
-- Real specialized agents that load skills and call LLM
-- Expand TA scanner with more indicators
-- Better thread style examples for X growth
-- Self-improve skill
-- Tests
+Immediate next priorities:
+1. Real LLM-powered skill bodies (requires XAI_API_KEY tomorrow)
+2. More specialized agents (X-Growth agent class, Crypto agent class)
+3. Dashboard or status page
+4. Better test coverage
+5. First real self-improvement PR from an agent
