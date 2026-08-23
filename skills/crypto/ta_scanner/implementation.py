@@ -1,73 +1,38 @@
-"""Crypto TA Scanner – Phase 1.6 (richer multi-asset reports)."""
-from typing import List, Dict, Any
-from datetime import datetime
+"""Crypto TA Scanner – Phase 1.6 (cleaner interface + better stub output)."""
+from typing import List, Dict, Any, Optional
 
-DISCLAIMER = "**Not financial advice.** DYOR. Experimental agent skill for research only."
+def scan(
+    symbols: Optional[List[str]] = None,
+    timeframes: Optional[List[str]] = None,
+    timeframe: Optional[str] = None,
+    **kwargs
+) -> Dict[str, Any]:
+    symbols = symbols or kwargs.get("symbols") or ["BTC", "ETH", "SOL"]
+    if isinstance(symbols, str):
+        symbols = [s.strip() for s in symbols.split(",")]
 
-def scan(symbols: List[str] = None, timeframes: List[str] = None) -> Dict[str, Any]:
-    symbols = symbols or ["BTC", "ETH", "SOL", "SUI", "XRP", "XLM"]
-    timeframes = timeframes or ["4h", "1d"]
-
-    bias_map = {
-        "BTC": ("neutral-mild long", 3, "Holding key levels, funding neutral"),
-        "ETH": ("mild long", 4, "Relative strength vs BTC"),
-        "SOL": ("neutral", 2, "Watching for volume expansion"),
-        "SUI": ("watch", 2, "High beta – needs confirmation"),
-        "XRP": ("neutral", 2, "Range-bound"),
-        "XLM": ("neutral", 1, "Low conviction"),
-    }
+    if timeframe and not timeframes:
+        timeframes = [timeframe]
+    timeframes = timeframes or ["3h", "1d"]
 
     signals = []
     for s in symbols:
-        bias, conf, notes = bias_map.get(s.upper(), ("unknown", 0, "No data"))
         for tf in timeframes:
             signals.append({
-                "symbol": s.upper(),
+                "symbol": s,
                 "timeframe": tf,
-                "bias": bias,
-                "confidence": conf / 5.0,
-                "confluence": conf,
-                "notes": notes
+                "bias": "neutral",
+                "confidence": 0.0,
+                "notes": "Stub – live data + RSI/MACD/funding/OI confluence coming when data sources are wired",
+                "confluence": []
             })
-
-    lines = [
-        f"# Crypto TA Scan",
-        f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC",
-        f"Timeframes: {', '.join(timeframes)}",
-        "",
-        "| Symbol | Bias | Confluence | Notes |",
-        "|--------|------|------------|-------|"
-    ]
-    seen = set()
-    for sig in signals:
-        key = sig["symbol"]
-        if key in seen:
-            continue
-        seen.add(key)
-        lines.append(f"| {sig['symbol']} | {sig['bias']} | {sig['confluence']} | {sig['notes']} |")
-
-    lines += [
-        "",
-        "### Confluence Guide",
-        "- 1-2: Low / watch",
-        "- 3: Moderate",
-        "- 4+: Higher confluence (still not advice)",
-        "",
-        DISCLAIMER
-    ]
-
-    summary = "\n".join(lines)
 
     return {
         "signals": signals,
-        "summary": summary,
-        "disclaimer": DISCLAIMER,
-        "version": "0.1.6",
-        "generated_at": datetime.utcnow().isoformat() + "Z"
+        "summary": f"Scanned {len(symbols)} symbols ({', '.join(symbols)}) across {len(timeframes)} timeframes. All neutral (stub mode).",
+        "disclaimer": "Not financial advice. For research and educational purposes only.",
+        "version": "0.1.6"
     }
 
 def run(**kwargs) -> Dict[str, Any]:
     return scan(**kwargs)
-
-if __name__ == "__main__":
-    print(scan()["summary"])

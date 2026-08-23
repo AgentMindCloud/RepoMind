@@ -44,8 +44,8 @@ memory/        persistent state + lessons
 - **SelfImprove** – proposes modular improvements to the repo itself
 
 ## Current Status
-**Phase 1g** – Four specialized agents registered and routing by labels.  
-Skills present (expanded thread factory + self-improve).  
+**Phase 1h** – Four specialized agents registered and routing by labels.  
+CI test workflow added. Skills cleaned.  
 Ready for real data feeds and stronger LLM skill bodies once `XAI_API_KEY` is added.
 
 ## Quick Start (from phone)

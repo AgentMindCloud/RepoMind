@@ -1,8 +1,7 @@
 # Working Memory
 
-- Phase: 1g – four agents live (Critic, CryptoAnalyst, XGrowth, SelfImprove)
-- Self-improve skill expanded with more concrete proposals
-- Basic routing tests added
-- README updated to reflect current agents
-- Next: real data feeds, stronger LLM skill bodies, more robust error handling, human-approved PR flow
-- XAI_API_KEY still required for full power (tomorrow on PC)
+- Phase: 1h – CI tests workflow added, TA scanner interface cleaned
+- Four agents live and registered
+- Skills: thread_factory (strong draft generator), ta_scanner (clean stub), self_improve (proposal list)
+- Next priorities: real market data, LLM-powered skill bodies once XAI_API_KEY is set, more robust tests, human-approved PR flow
+- Secrets still pending (tomorrow on PC)
