@@ -39,6 +39,12 @@ class Orchestrator:
         except Exception as e:
             print(f"Could not register XGrowthAgent: {e}")
 
+        try:
+            from agents.self_improve_agent import SelfImproveAgent
+            self.register_agent("self_improve", SelfImproveAgent(github=self.github, llm=self.llm))
+        except Exception as e:
+            print(f"Could not register SelfImproveAgent: {e}")
+
     def register_agent(self, name: str, agent: BaseAgent):
         self.agents[name] = agent
 

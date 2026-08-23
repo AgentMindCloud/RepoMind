@@ -1,7 +1,7 @@
 # Working Memory
 
-- Phase: 1f – all three specialized agents registered and routing works
-- github_client has get_task + full Issue/PR helpers
-- Phone workflow documented
-- Next: stronger skill bodies (real TA data + better Grok prompts), self-improve loop, more tests
-- Secrets still pending (tomorrow on PC)
+- Phase: 1g – SelfImproveAgent added and registered
+- Four agents live: Critic (default), CryptoAnalyst, XGrowth, SelfImprove
+- Routing by labels works
+- Next: stronger skill implementations, real data, more tests, human-approved PR flow polish
+- XAI_API_KEY still needed for full LLM power
