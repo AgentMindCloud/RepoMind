@@ -1,6 +1,7 @@
 # Working Memory
 
-- Phase: 1e – CryptoAnalystAgent + XGrowthAgent + CriticAgent all registered in Orchestrator
-- base_runner now reports registered agents and routes by labels
-- Next priorities: real market data for TA, stronger LLM bodies in skills, self-improve loop, phone docs polish
-- XAI_API_KEY still required for full LLM power (tomorrow on PC)
+- Phase: 1f – all three specialized agents registered and routing works
+- github_client has get_task + full Issue/PR helpers
+- Phone workflow documented
+- Next: stronger skill bodies (real TA data + better Grok prompts), self-improve loop, more tests
+- Secrets still pending (tomorrow on PC)
