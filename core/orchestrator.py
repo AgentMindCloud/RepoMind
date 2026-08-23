@@ -22,8 +22,22 @@ class Orchestrator:
         try:
             from agents.critic_agent import CriticAgent
             self.register_agent("critic", CriticAgent(github=self.github, llm=self.llm))
+            self.register_agent("default", CriticAgent(github=self.github, llm=self.llm))
         except Exception as e:
             print(f"Could not register CriticAgent: {e}")
+
+        try:
+            from agents.crypto_analyst_agent import CryptoAnalystAgent
+            self.register_agent("crypto", CryptoAnalystAgent(github=self.github, llm=self.llm))
+            self.register_agent("crypto_ta", CryptoAnalystAgent(github=self.github, llm=self.llm))
+        except Exception as e:
+            print(f"Could not register CryptoAnalystAgent: {e}")
+
+        try:
+            from agents.x_growth_agent import XGrowthAgent
+            self.register_agent("x_growth", XGrowthAgent(github=self.github, llm=self.llm))
+        except Exception as e:
+            print(f"Could not register XGrowthAgent: {e}")
 
     def register_agent(self, name: str, agent: BaseAgent):
         self.agents[name] = agent
