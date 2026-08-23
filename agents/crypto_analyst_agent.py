@@ -32,17 +32,25 @@ class CryptoAnalystAgent(BaseAgent):
 
     async def act(self, plan: list, task: Task) -> ActionResult:
         try:
-            from skills.crypto.ta_scanner.implementation import run_scan
-            result = run_scan(symbols=["BTC", "ETH", "SOL", "SUI", "XRP"], timeframe="3H")
+            from skills.crypto.ta_scanner.implementation import scan, run
+            # Prefer the richer scan interface
+            result = scan(symbols=["BTC", "ETH", "SOL", "SUI", "XRP", "XLM"], timeframes=["4h", "1d"])
             summary = result.get("summary", "Scan completed")
+            disclaimer = result.get("disclaimer", "Not financial advice.")
+
+            comment = (
+                f"**CryptoAnalystAgent** report:\n\n"
+                f"{summary}\n\n"
+                f"{disclaimer}"
+            )
             if self.github:
-                self.github.comment_on_issue(
-                    task.issue_number,
-                    f"**CryptoAnalystAgent** report:\n\n{summary}"
-                )
+                self.github.comment_on_issue(task.issue_number, comment)
             return ActionResult(success=True, summary="TA scan posted", output=result)
         except Exception as e:
             msg = f"CryptoAnalystAgent error: {e}"
             if self.github:
-                self.github.comment_on_issue(task.issue_number, msg)
+                try:
+                    self.github.comment_on_issue(task.issue_number, msg)
+                except Exception:
+                    pass
             return ActionResult(success=False, summary=msg)
