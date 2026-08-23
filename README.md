@@ -15,13 +15,13 @@ RepoMind turns the GitHub repo itself into the OS.
 
 - Agents open Issues and PRs to improve their own code
 - You drive everything from GitHub mobile
-- Heavy modular skill packs (Crypto TA, X growth, self-improve, BbotBook)
+- Heavy modular skill packs (Crypto TA, X growth, self-improve)
 - Native continuity with xlOS, Vesper contracts, grok-install, BbotBook
 
 ## Phone-First Workflow
 1. Create an Issue describing the goal
-2. Label it `task` / `agent` / `crypto` / `x-growth`
-3. Agents (or you + Grok) implement via commits / PRs
+2. Label it `task` / `agent` / `crypto` / `x-growth` / `self-improve`
+3. Agents implement via comments / PRs
 4. Review & merge on your phone
 5. Scheduled Actions keep the swarm alive while you sleep
 
@@ -30,16 +30,22 @@ See `docs/phone-workflow.md` for details.
 ## Architecture
 ```
 core/          agent base, orchestrator, GitHub client, safety, LLM, skill_loader
-agents/        Critic, CryptoAnalyst, XGrowth (+ base_runner)
+agents/        Critic, CryptoAnalyst, XGrowth, SelfImprove (+ base_runner)
 skills/        modular skill packs (crypto TA, x_growth, self_improve)
 contracts/     Vesper-style YAML constitutions & agent roles
 memory/        persistent state + lessons
 .github/       the actual runtime (Actions)
 ```
 
+## Current Agents
+- **Critic** (default) – safety & constitution reviews
+- **CryptoAnalyst** – multi-asset TA scans (stub → real data later)
+- **XGrowth** – high-signal thread & reply drafts
+- **SelfImprove** – proposes modular improvements to the repo itself
+
 ## Current Status
-**Phase 1f** – Core runtime + three specialized agents registered and routing by labels.  
-Skills are present (stubs + expanded thread factory).  
+**Phase 1g** – Four specialized agents registered and routing by labels.  
+Skills present (expanded thread factory + self-improve).  
 Ready for real data feeds and stronger LLM skill bodies once `XAI_API_KEY` is added.
 
 ## Quick Start (from phone)
