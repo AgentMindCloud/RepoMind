@@ -1,0 +1,50 @@
+name: RepoMind Agent Runner
+
+on:
+  issues:
+    types: [opened, labeled, reopened]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to process'
+        required: false
+  schedule:
+    - cron: '0 */6 * * *'  # every 6h
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.issue.labels.*.name, 'agent') || contains(github.event.issue.labels.*.name, 'task') || startsWith(github.event.comment.body, '/run')
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Run agent (Phase 0 placeholder)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+        run: |
+          echo "RepoMind agent runner active - Phase 0 scaffold"
+          echo "Issue: ${{ github.event.issue.number || inputs.issue_number }}"
+          python -c "print('Scaffold ready. Next wave: github_client + orchestrator + first skills')"
+      - name: Comment status
+        if: github.event.issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '**RepoMind agent runner** acknowledged this task.\n\nPhase 0 scaffold is live. Full agents + skills coming in next commits.\n\nLabel with `task` or `agent` to trigger.'
+            })
