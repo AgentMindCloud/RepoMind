@@ -7,44 +7,46 @@ PRs = self-evolution.
 Actions = compute.  
 Files + Wiki = memory.
 
-Built from a phone in Saigon by a solo Grok/xAI builder.
+Built from a phone in Saigon by a solo Grok/xAI builder (@JanSol0s / AgentMindCloud).
 
 ## Why RepoMind
 Most agent frameworks need servers, Docker, or local machines.  
 RepoMind turns the GitHub repo itself into the operating system.
 
 - Agents open Issues and PRs to improve their own code
-- Drive everything from GitHub mobile
-- Heavy skill packs for crypto TA, X growth, research, monetization
-- Native continuity with xlOS, BbotBook, Vesper contracts, grok-install
+- You review and drive everything from GitHub mobile
+- Heavy skill packs for crypto TA, X growth, research, monetization, self-improvement
+- Native continuity with xlOS, BbotBook, Vesper contracts, grok-install standards
+
+## Current Status (Phase 1d)
+- Core runtime complete (github_client, llm, safety, orchestrator, skill_loader)
+- Specialized agents: **Critic**, **CryptoAnalyst**, **XGrowth**
+- Skills live: Crypto TA Scanner, X Growth Thread Factory, Self-Improve Code Evolver
+- Constitution + agent role contracts
+- Workflow runs the base_runner on Issues labeled `task` or `agent`
+- First Issue + tests started
 
 ## Phone-First Workflow
-1. Open an Issue describing what you want
-2. Label it (e.g. `task` or `agent`)
-3. Agents run via Actions, comment results, open PRs
-4. Review & merge on phone
-5. The system improves itself
+1. Open an Issue (or label existing) with `task` / `agent` / `crypto` / `growth`
+2. Actions runner picks it up and routes to the right agent
+3. Agent comments results or drafts
+4. Review & merge on mobile
+5. System improves itself over time
+
+## Quick Start
+1. Add secrets: `XAI_API_KEY` (required for real Grok calls), optional X keys
+2. Open or label an Issue
+3. Watch the agents work
 
 ## Architecture
 ```
-core/          – agent base, orchestrator, GitHub client, safety, llm
-agents/        – specialized agents
-skills/        – the heavy skill packs (CryptoTA, X-Growth, Self-Improve...)
-contracts/     – Vesper-style YAML constitutions & roles
-memory/        – persistent state
-.github/       – the actual runtime (Actions)
-dashboard/     – command center (later)
+core/          – runtime primitives
+agents/        – Critic, CryptoAnalyst, XGrowth, ...
+skills/        – modular heavy skills (SKILL.md + code)
+contracts/     – Constitution + role YAMLs
+memory/        – working + long-term state
+.github/       – the compute layer
 ```
 
-## Phase 1 Priority Skills
-- CryptoTA-Heavy
-- X-Growth-Swarm
-- Self-Improve / Critic
-- BbotBook-Integrator
-- Researcher
-
-## Status
-Phase 0 scaffold live. Agents waking up.
-
-## Quick Start (tomorrow with keys)
-Add `XAI_API_KEY` secret → open Issue labeled `task` → watch the runner.
+## License
+Apache-2.0

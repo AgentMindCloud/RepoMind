@@ -1,17 +1,24 @@
 # Working Memory
 
-**Phase 1d complete**
+**Current phase:** 1d – Specialized agents live
 
-Live:
-- CriticAgent registered in Orchestrator
-- base_runner uses full Orchestrator + routing
-- self_improve/code_evolver skill stub added
-- Agent role contracts for critic / x_growth / crypto_analyst
-- 42+ files on main
+## Active agents
+- CriticAgent (safety + constitution)
+- CryptoAnalystAgent (calls ta_scanner skill)
+- XGrowthAgent (calls thread_factory skill)
 
-Immediate next priorities:
-1. Real LLM-powered skill bodies (requires XAI_API_KEY tomorrow)
-2. More specialized agents (X-Growth agent class, Crypto agent class)
-3. Dashboard or status page
-4. Better test coverage
-5. First real self-improvement PR from an agent
+## Skills
+- crypto/ta_scanner (expanded mock indicators)
+- x_growth/thread_factory (JanSol0s-style drafts)
+- self_improve/code_evolver
+
+## Runtime
+- base_runner registers agents
+- Orchestrator routes by labels
+- Workflow calls the runner
+
+## Next
+- Better default agent / fallback
+- LLM-backed skill bodies (after XAI_API_KEY)
+- More tests + docs
+- Live data adapters for TA
