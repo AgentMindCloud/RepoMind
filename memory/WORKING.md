@@ -1,24 +1,21 @@
 # Working Memory
 
-**Phase 2 COMPLETE**
+**Phase 3a in progress**
 
-## Live capabilities
-- Critic, CryptoAnalyst, XGrowth, SelfImprove, **Researcher**
-- CryptoTA: Binance multi-TF RSI (4h + 1d) + funding rate + confluence
+## Live capabilities (Phase 2 complete + 3a)
+- Five agents: Critic, CryptoAnalyst, XGrowth, SelfImprove, Researcher
+- CryptoTA: multi-TF RSI + funding + **volume**
 - SelfImprove can open real draft PRs
-- Researcher summarizes all open Issues (read-only)
-- XGrowth is LLM-aware
-- Clear USAGE guide + phone workflow
+- **Daily briefing workflow** (cron 00:00 UTC + manual)
 - XAI_API_KEY confirmed working
 
-## Phase 2 goals achieved
-- Real market data + RSI + funding
-- Self-evolution path (draft PRs)
-- Research / status agent
-- Five specialized agents registered and routable
+## Phase 3 goals
+1. ✅ Daily autonomous briefing
+2. ✅ Volume enrichment in CryptoTA
+3. ⏳ SelfImprove makes small real code edits inside draft PRs
+4. ⏳ Stronger observability / self-check
+5. ⏳ Multi-repo readiness (light)
 
-## Possible Phase 3 directions
-1. SelfImprove makes tiny real code edits inside draft PRs
-2. Volume / Open Interest / more advanced confluence
-3. Scheduled autonomous status reports
-4. Multi-repo support
+## Next
+- Implement safe file-edit path for SelfImprove draft PRs
+- Mark Phase 3 complete when core items land

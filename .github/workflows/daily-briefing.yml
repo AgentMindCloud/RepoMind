@@ -1,0 +1,71 @@
+name: RepoMind Daily Briefing
+
+on:
+  schedule:
+    # 00:00 UTC every day
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  daily-brief:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Run daily briefing
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+        run: |
+          python -c "
+          from core.github_client import GitHubClient
+          from core.llm import LLMClient
+          from agents.researcher_agent import ResearcherAgent
+          from agents.crypto_analyst_agent import CryptoAnalystAgent
+          from core.models import Task
+          import asyncio
+
+          gh = GitHubClient()
+          llm = LLMClient()
+
+          # Create or find a daily briefing issue
+          title = 'Daily Briefing – RepoMind'
+          existing = None
+          for iss in gh.repo.get_issues(state='open', labels=['briefing']):
+              if 'Daily Briefing' in iss.title:
+                  existing = iss
+                  break
+
+          if existing:
+              issue_number = existing.number
+          else:
+              issue_number = gh.create_issue(
+                  title=title,
+                  body='Autonomous daily status Issue. Agents post summaries here.',
+                  labels=['briefing', 'research', 'task']
+              )
+
+          task = gh.get_task(issue_number)
+
+          # Researcher summary
+          researcher = ResearcherAgent(github=gh, llm=llm)
+          asyncio.run(researcher.run(task))
+
+          # Crypto scan
+          crypto = CryptoAnalystAgent(github=gh, llm=llm)
+          asyncio.run(crypto.run(task))
+
+          print(f'Daily briefing posted on Issue #{issue_number}')
+          "
