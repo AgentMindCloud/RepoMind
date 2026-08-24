@@ -1,0 +1,23 @@
+# RepoMind Marketplace Registry – Phase 5 scaffolding
+version: 0.1.0
+packs:
+  - id: core
+    name: Core Runtime
+    skills: []
+    agents: [critic, researcher, self_improve]
+    status: live
+  - id: crypto-pro
+    name: Crypto Pro
+    skills: [crypto/ta_scanner]
+    agents: [crypto]
+    status: live
+  - id: x-growth
+    name: X Growth
+    skills: [x_growth/thread_factory]
+    agents: [x_growth]
+    status: live
+  - id: self-evolve
+    name: Self Evolve
+    skills: [self_improve/code_evolver]
+    agents: [self_improve]
+    status: live

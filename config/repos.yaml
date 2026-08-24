@@ -1,23 +1,18 @@
-# RepoMind multi-repo readiness (Phase 4)
-# Primary repo is always the current GITHUB_REPOSITORY.
-# Secondary repos are optional future targets for research / sync agents.
-
+# Multi-repo readiness (Phase 5)
+# Primary runtime repo
 primary:
-  full_name: AgentMindCloud/RepoMind
-  role: os
+  owner: AgentMindCloud
+  name: RepoMind
+  default_branch: main
 
-secondary: []
-  # Example future entries:
-  # - full_name: AgentMindCloud/xlOS
-  #   role: satellite
-  #   allowed_actions: [read, comment]
+# Future satellite repos (not auto-executed yet)
+satellites: []
+  # - owner: AgentMindCloud
+  #   name: example-satellite
+  #   roles: [skills-only]
 
-policy:
-  write_targets:
-    - proposals/
-    - docs/
-    - skills/
-    - memory/
-    - tests/
-  never_auto_merge: true
-  require_human_approved_label: true
+# Rules
+rules:
+  allow_cross_repo_comments: false
+  allow_cross_repo_prs: false
+  require_human_approval_for_satellites: true
