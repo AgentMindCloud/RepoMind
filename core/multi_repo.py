@@ -65,6 +65,10 @@ def status_report(cfg: Optional[Dict[str, Any]] = None) -> str:
     ]
     return "\n".join(lines)
 
+def multi_repo_status(cfg: Optional[Dict[str, Any]] = None) -> str:
+    """Alias used by ResearcherAgent."""
+    return status_report(cfg)
+
 def can_write_satellite(cfg: Optional[Dict[str, Any]] = None, human_approved: bool = False) -> bool:
     cfg = cfg or load_repo_config()
     policy = cfg.get("policy") or {}
