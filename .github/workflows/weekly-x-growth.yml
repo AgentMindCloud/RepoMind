@@ -5,21 +5,9 @@ on:
     # Monday 08:00 UTC
     - cron: '0 8 * * 1'
   workflow_dispatch:
-  # Validate-only on workflow file changes so push events do not show as failed phantoms
-  push:
-    paths:
-      - '.github/workflows/weekly-x-growth.yml'
 
 jobs:
-  validate:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Workflow file present
-        run: echo "weekly-x-growth.yml validated on push"
-
   x-growth-draft:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
