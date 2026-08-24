@@ -1,52 +1,42 @@
 # RepoMind
 
-**The multi-agent operating system that lives entirely inside a GitHub repository.**
+**The multi-agent OS that lives inside a GitHub repository.**
 
-Issues = tasks.  
-PRs = self-evolution.  
-Actions = compute.  
-Files + Wiki = memory.
+Issues = tasks · Actions = compute · Agents = specialized roles · Skills = capabilities · PRs = evolution
 
-Built phone-first by a solo Grok/xAI builder (@JanSol0s / AgentMindCloud).
-
-## How to use it (30-second version)
-
-1. Open an Issue  
-2. Add a label (`crypto`, `x-growth`, `task`, `self-improve`…)  
-3. Agent runs and comments the result  
-4. Review on your phone or PC
-
-**Full simple guide →** [docs/USAGE.md](docs/USAGE.md)
-
-## Why RepoMind exists
-Most agent frameworks need servers or a local machine.  
-RepoMind turns the GitHub repo itself into the OS. You drive everything with Issues + labels.
-
-## Current Agents
-- **Critic** (default) – safety & constitution reviews
-- **CryptoAnalyst** – multi-asset TA scans
-- **XGrowth** – high-signal thread & reply drafts (never auto-posts)
-- **SelfImprove** – proposes modular improvements to the repo itself
-
-## Architecture
-```
-core/          runtime (orchestrator, LLM, GitHub client, safety)
-agents/        Critic, CryptoAnalyst, XGrowth, SelfImprove
-skills/        modular skill packs
-contracts/     Constitution + role YAMLs
-memory/        working + long-term state
-.github/       the actual compute engine (Actions)
-```
-
-## Current Status
-**Phase 1j** – System is live and tested with real `XAI_API_KEY`.  
-Four agents registered and routing by labels. Clear usage docs added.
-
-## Quick links
-- [How to use](docs/USAGE.md)
-- [Phone workflow](docs/phone-workflow.md)
-- [Actions runner](https://github.com/AgentMindCloud/RepoMind/actions/workflows/agent-runner.yml)
-- [Open Issues](https://github.com/AgentMindCloud/RepoMind/issues)
+Built phone-first. Runs entirely on GitHub. Powered by Grok.
 
 ---
-*Part of the AgentMindCloud ecosystem.*
+
+## Status – Phase 2b
+
+**Live agents**
+| Agent | Trigger labels | What it does |
+|-------|----------------|--------------|
+| Critic | `task`, `agent` | Safe default review |
+| Crypto Analyst | `crypto`, `ta` | Live prices + momentum bias (CoinGecko) |
+| X-Growth | `x-growth`, `thread` | Draft high-signal X threads with Grok |
+| Self-Improve | `self-improve` | Prioritized, actionable improvement proposals |
+
+**Secret required:** `XAI_API_KEY` (already set and working)
+
+---
+
+## How to use (30 seconds)
+
+1. Open or create an **Issue**
+2. Add a label (`crypto` / `x-growth` / `self-improve` / `task`)
+3. Comment `/run` or just wait
+4. Read the agent reply on the Issue
+
+Full guide → [docs/USAGE.md](docs/USAGE.md)
+
+---
+
+## Quick links
+
+- [Issues](https://github.com/AgentMindCloud/RepoMind/issues)
+- [Actions](https://github.com/AgentMindCloud/RepoMind/actions)
+- [Changelog](CHANGELOG.md)
+
+Built with Grok · AgentMindCloud

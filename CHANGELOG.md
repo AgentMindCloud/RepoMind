@@ -1,17 +1,24 @@
 # Changelog
 
-## Phase 2a – 2026-08-24
-- **Crypto TA skill** now pulls live USD prices + 24h change from CoinGecko public API
-- Simple momentum heuristic bias added (full indicators still coming)
-- **SelfImprove** proposals are now prioritized and structured
-- **XGrowthAgent** passes the live LLM client so drafts can use real Grok
-- All major agents now include a clear "Next actions for you" section in comments
-- Memory and docs updated
+## Phase 2b – 2026-08-24
 
-## Phase 1j
-- Clear USAGE.md guide
-- LLM-aware X-Growth skill (template fallback)
-- Confirmed working with real XAI_API_KEY
+### Self-Improve
+- Agent completely rewritten for clearer, prioritized, mobile-friendly output
+- Always includes “Next actions for you” section
+- Focus detection from Issue title/body (crypto, tests, agents, etc.)
+- Skill already returns structured proposals with priority + effort
 
-## Earlier phases
-- Core runtime, four specialized agents, skill contracts, CI, phone workflow
+### CryptoTA (from Phase 2a)
+- Live USD prices + 24h change via CoinGecko
+- Simple momentum bias
+- Markdown table output
+
+### General
+- Better agent comment quality across the board
+- Memory and docs kept in sync
+
+## Phase 2a
+- Live price data in CryptoTA
+- LLM-aware X-Growth thread factory
+- Four agents registered and routing
+- Clear USAGE docs
