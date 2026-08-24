@@ -1,18 +1,20 @@
 # Changelog
 
-## [0.7.0] – Phase 4a (2026-08-24)
+## Phase 4b – 2026-08-24
+- Weekly X-Growth draft workflow (cron Monday + manual)
+- LONG_TERM memory expanded with phase milestones and durable patterns
+- Basic tests for crypto symbols and orchestrator routing
 
-### Added
-- CryptoTA **open interest** column (Binance USDT-M public endpoint)
-- `config/repos.yaml` multi-repo readiness stub
-- Phase 4 code evolver proposals + proposal artifacts
-- `docs/PHASE4.md`
+## Phase 4a
+- Open Interest in CryptoTA
+- Updated SelfImprove proposals
+- Multi-repo readiness stub
 
-## [0.6.x] – Phase 3 Complete
-- Volume enrichment, daily briefing, SelfImprove real draft-PR files, runner self-check
+## Phase 3 Complete
+- Real proposal files in draft PRs, volume, daily briefing, runner self-check
 
-## [0.5.0] – Phase 2 Complete
-- Researcher agent, multi-TF RSI + funding, five agents, LLM X-Growth
+## Phase 2 Complete
+- Multi-TF RSI + funding, Researcher, five agents, draft-PR capability
 
-## Earlier
-- Phase 1 core runtime
+## Phase 1
+- Core runtime, phone workflow, XAI_API_KEY

@@ -1,37 +1,44 @@
 # RepoMind
 
-**GitHub-native multi-agent OS**  
-The repository *is* the runtime. Issues = tasks. Actions = compute. Agents evolve the system.
+**The multi-agent operating system that lives entirely inside a GitHub repository.**
 
-## Status: Phase 3 Complete
+Issues = tasks.  
+PRs = self-evolution.  
+Actions = compute.  
+Files + memory = long-term state.
 
-Five specialized agents + autonomous daily briefing + self-evolution via draft PRs.
+Built phone-first from Saigon by a solo Grok/xAI builder.
 
-| Agent         | What it does                                      |
-|---------------|---------------------------------------------------|
-| Critic        | Safety & constitution reviews                     |
-| CryptoAnalyst | Live Binance + multi-TF RSI + funding + volume    |
-| XGrowth       | High-signal X thread drafts (uses real Grok)      |
-| SelfImprove   | Ranked proposals + **draft PRs with real files**  |
-| Researcher    | Read-only summary of all open Issues              |
+## How to use it (30 seconds)
 
-## How to use (30-second version)
-
-1. Open or create an Issue  
-2. Add a label (`crypto`, `x-growth`, `self-improve`, `research`, …)  
-3. Comment `/run` or trigger the Action  
-4. Read the agent comment (and any draft PR)
+1. Open or create an Issue.
+2. Add a label: `task`, `crypto`, `x-growth`, `self-improve`, or `research`.
+3. Comment `/run` (or Run workflow from Actions).
+4. The matching agent comments back.
 
 Full guide → [docs/USAGE.md](docs/USAGE.md)
 
-## Autonomous features
-- Daily briefing workflow (00:00 UTC)
-- Agents can open draft PRs with real proposal files (never auto-merge)
-- Real market data from public Binance endpoints
-- Runner self-check on every run
+## Current Agents
+- **Critic** – safety & constitution reviews
+- **CryptoAnalyst** – live Binance data + multi-TF RSI + funding + volume + OI
+- **XGrowth** – LLM-powered thread drafts
+- **SelfImprove** – ranked proposals + draft PRs with real files
+- **Researcher** – summarizes open Issues
 
-## Safety
-- Constitution + human-approved path for core changes
-- Agents never force-merge
-- File writes limited to safe paths (`proposals/`, `memory/`, `skills/`, `docs/`, `tests/`)
-- Research / crypto outputs always carry disclaimers
+## Current Status
+**Phase 4b** – Open Interest, weekly X-Growth drafts, stronger long-term memory, basic tests.
+
+## Scheduled workflows
+- Daily Briefing (crypto status)
+- Weekly X-Growth Draft Issue (Monday)
+
+## Architecture
+```
+core/          orchestrator, GitHub client, LLM, safety, skill loader
+agents/        Critic, CryptoAnalyst, XGrowth, SelfImprove, Researcher
+skills/        modular skill packs
+.github/       Actions runtime
+```
+
+---
+*RepoMind is part of the AgentMindCloud ecosystem.*

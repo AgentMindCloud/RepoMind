@@ -1,17 +1,18 @@
 # Working Memory
 
-**Phase 4a in progress**
+**Phase 4b live**
 
-## Landed
-- CryptoTA v0.6: multi-TF RSI + funding + volume + **open interest**
-- Phase 4 code evolver proposals
-- `config/repos.yaml` multi-repo readiness stub
-- docs/PHASE4.md
+## Landed in Phase 4
+- CryptoTA: multi-TF RSI + funding + volume + **Open Interest**
+- Weekly X-Growth draft workflow (Monday cron + manual)
+- Stronger LONG_TERM memory
+- Basic symbol + routing tests
+- Multi-repo readiness stub (from 4a)
 
-## Still Phase 4
-- SelfImprove gated micro-edits to skills/ SKILL.md when relevant
-- Weekly X-Growth draft Issue workflow
-- Symbol-extraction tests
+## Still optional / remaining
+- SelfImprove gated micro-edits to skills/*/SKILL.md
+- More reliability tests
+- Richer scheduled multi-agent briefings
 
 ## Agents (5)
 Critic · CryptoAnalyst · XGrowth · SelfImprove · Researcher

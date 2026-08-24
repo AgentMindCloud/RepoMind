@@ -1,0 +1,57 @@
+name: RepoMind Weekly X-Growth Draft
+
+on:
+  schedule:
+    # Monday 08:00 UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+jobs:
+  x-growth-draft:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Create weekly X-Growth Issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+        run: |
+          python -c "
+          from core.github_client import GitHubClient
+          from datetime import datetime, timezone
+
+          gh = GitHubClient()
+          today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+          title = f'Weekly X-Growth Draft – {today}'
+          body = '''## Weekly X-Growth Draft
+
+Auto-created by the Weekly X-Growth workflow.
+
+**Goal:** Produce one high-signal thread draft for @JanSol0s (solo Grok/xAI builder from Saigon).
+
+### Suggested angles this week
+- Build-in-public progress on RepoMind
+- Crypto TA research notes (multi-TF RSI + funding + OI)
+- Multi-agent OS insights
+
+### How to run
+1. Add label `x-growth`
+2. Comment `/run` (or use Actions → Agent Runner)
+3. Review the draft the agent posts
+4. Edit + post manually (agents never auto-post)
+
+---
+*Scheduled workflow. Reply here or open a more specific Issue if you want a different topic.*
+'''
+          num = gh.create_issue(title=title, body=body, labels=['x-growth', 'task'])
+          print(f'Created weekly X-Growth Issue #{num}')
+          "
