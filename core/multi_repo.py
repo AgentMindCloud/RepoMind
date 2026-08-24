@@ -1,6 +1,6 @@
-"""Multi-repo helpers – Phase 6 (status + policy-aware)."""
+"""Multi-repo helpers – Phase 7 (status + gated write policy)."""
 from __future__ import annotations
-from typing import Dict, Any, Optional, List
+from typing import List, Dict, Any, Optional
 import os
 
 try:
@@ -8,90 +8,68 @@ try:
 except ImportError:
     yaml = None
 
-def load_repos_config(path: str = "config/repos.yaml") -> Dict[str, Any]:
+def load_repo_config(path: str = "config/repos.yaml") -> Dict[str, Any]:
     default = {
-        "primary": {"owner": "AgentMindCloud", "name": "RepoMind", "default_branch": "main"},
-        "satellites": [],
+        "primary": {"full_name": os.getenv("GITHUB_REPOSITORY", "AgentMindCloud/RepoMind"), "role": "os"},
         "secondary": [],
-        "rules": {
-            "allow_cross_repo_comments": False,
-            "allow_cross_repo_prs": False,
-            "require_human_approval_for_satellites": True,
-            "write_to_secondary": False,
-            "draft_pr_only": True,
-        },
         "policy": {
-            "write_to_secondary": False,
-            "draft_pr_only": True,
-            "require_human_approved": True,
+            "write_targets": ["proposals/", "docs/", "skills/", "memory/", "tests/", "marketplace/"],
+            "never_auto_merge": True,
+            "require_human_approved_label": True,
+            "cross_repo_writes": False,
+            "cross_repo_comments": False,
+            "satellite_writes_require_human_approved": True,
         },
     }
-    if yaml is None:
+    if not os.path.exists(path) or yaml is None:
         return default
     try:
         with open(path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
-            # merge shallow defaults
-            for k, v in default.items():
-                data.setdefault(k, v)
-            return data
-    except Exception:
+        merged = default.copy()
+        for k, v in data.items():
+            if v is not None:
+                merged[k] = v
+        return merged
+    except Exception as e:
+        print(f"multi_repo config load failed: {e}")
         return default
 
-def primary_repo_full_name(cfg: Optional[Dict[str, Any]] = None) -> str:
-    cfg = cfg or load_repos_config()
-    primary = cfg.get("primary") or {}
-    if isinstance(primary, str):
-        return os.getenv("GITHUB_REPOSITORY", primary)
-    owner = primary.get("owner") or "AgentMindCloud"
-    name = primary.get("name") or "RepoMind"
-    return os.getenv("GITHUB_REPOSITORY", f"{owner}/{name}")
-
-def list_satellites(cfg: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
-    cfg = cfg or load_repos_config()
-    sats = cfg.get("satellites") or cfg.get("secondary") or []
+def list_secondary_repos(cfg: Optional[Dict[str, Any]] = None) -> List[str]:
+    cfg = cfg or load_repo_config()
     out = []
-    for s in sats:
-        if isinstance(s, str):
-            out.append({"name": s, "enabled": False})
-        elif isinstance(s, dict):
-            out.append(s)
+    for item in cfg.get("secondary") or []:
+        if isinstance(item, dict) and item.get("full_name"):
+            out.append(item["full_name"])
+        elif isinstance(item, str):
+            out.append(item)
     return out
 
-def satellites_enabled(cfg: Optional[Dict[str, Any]] = None) -> bool:
-    cfg = cfg or load_repos_config()
-    rules = cfg.get("rules") or {}
-    policy = cfg.get("policy") or {}
-    sats = list_satellites(cfg)
-    if not sats:
-        return False
-    if rules.get("require_human_approval_for_satellites", True):
-        return False
-    if policy.get("require_human_approved", True):
-        return False
-    return any(s.get("enabled") for s in sats)
+def allowed_write_prefixes(cfg: Optional[Dict[str, Any]] = None) -> List[str]:
+    cfg = cfg or load_repo_config()
+    return list((cfg.get("policy") or {}).get("write_targets") or ["proposals/"])
 
-def multi_repo_status(cfg: Optional[Dict[str, Any]] = None) -> str:
-    """Human-readable multi-repo status for agent comments."""
-    cfg = cfg or load_repos_config()
-    primary = primary_repo_full_name(cfg)
-    sats = list_satellites(cfg)
-    rules = cfg.get("rules") or {}
+def status_report(cfg: Optional[Dict[str, Any]] = None) -> str:
+    cfg = cfg or load_repo_config()
+    primary = (cfg.get("primary") or {}).get("full_name") or "unknown"
+    secondary = list_secondary_repos(cfg)
     policy = cfg.get("policy") or {}
     lines = [
-        f"**Primary:** `{primary}`",
-        f"**Satellites configured:** {len(sats)}",
+        "### Multi-repo status (Phase 7)",
+        f"- Primary: `{primary}`",
+        f"- Secondary repos: {', '.join(f'`{s}`' for s in secondary) if secondary else '_none configured_'}",
+        f"- Cross-repo writes: `{policy.get('cross_repo_writes', False)}`",
+        f"- Cross-repo comments: `{policy.get('cross_repo_comments', False)}`",
+        f"- Never auto-merge: `{policy.get('never_auto_merge', True)}`",
+        f"- Human-approved required: `{policy.get('require_human_approved_label', True)}`",
     ]
-    for s in sats[:8]:
-        name = s.get("name") or s.get("repo") or str(s)
-        enabled = s.get("enabled", False)
-        notes = s.get("notes", "")
-        lines.append(f"- `{name}` · enabled={enabled}" + (f" · {notes}" if notes else ""))
-    lines.append(
-        f"**Policy:** write_secondary={policy.get('write_to_secondary', rules.get('write_to_secondary', False))} · "
-        f"draft_only={policy.get('draft_pr_only', rules.get('draft_pr_only', True))} · "
-        f"human_approval={policy.get('require_human_approved', rules.get('require_human_approval_for_satellites', True))}"
-    )
-    if not satellites_enabled(cfg):
-        lines.append("_Cross-repo writes disabled until human enables satellites and relaxes approval policy._")
     return "\n".join(lines)
+
+def can_write_satellite(cfg: Optional[Dict[str, Any]] = None, human_approved: bool = False) -> bool:
+    cfg = cfg or load_repo_config()
+    policy = cfg.get("policy") or {}
+    if not policy.get("cross_repo_writes", False):
+        return False
+    if policy.get("satellite_writes_require_human_approved", True) and not human_approved:
+        return False
+    return True

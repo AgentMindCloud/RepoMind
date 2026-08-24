@@ -1,26 +1,17 @@
 # Working Memory
 
-**Phase 6 COMPLETE**
+**Phase 7a in progress**
 
-## Delivered in Phase 6
-- Multi-repo status reporting via Researcher
-- Skill pack install flow scaffolding + pending_install notes
-- SelfImprove Phase 6: gated patch templates + **minimal code sketches** + pack install convention
-- Stronger multi_repo helpers
-- Phase 5 capabilities retained (OI delta, marketplace, weekly/daily workflows)
+## Landed
+- Human-approved merge checklist in SelfImprove draft PRs
+- Signed skill pack scaffolding (`packs.json` v2, SIGNED_PACKS.md, checksum helpers)
+- Multi-repo write policy explicit (`cross_repo_writes: false` by default)
+- Phase 6 capabilities retained
 
-## Full agent set
-1. Critic
-2. CryptoAnalyst
-3. XGrowth
-4. SelfImprove
-5. Researcher
+## Still Phase 7 (optional remaining)
+- Real sha256 fill-in for each pack entry
+- Researcher always includes multi-repo status_report()
+- Historical confluence notes into LONG_TERM
 
-## System loop
-Issue → Label → Agent → Comment / Draft PR (safe paths) → Human review → Merge only when approved
-
-## Possible Phase 7 directions
-- True auto-applied minimal diffs after human-approved label
-- Active multi-repo write orchestration
-- Pack marketplace with signed skill bundles
-- Historical confluence learning into LONG_TERM
+## Agents (5)
+Critic · CryptoAnalyst · XGrowth · SelfImprove · Researcher

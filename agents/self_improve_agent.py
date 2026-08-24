@@ -1,4 +1,4 @@
-"""Self-Improve Agent – Phase 6 (draft PRs + notes + patch templates + minimal sketches + pack install)."""
+"""Self-Improve Agent – Phase 7 (draft PRs + human-approved checklist + signed pack notes)."""
 from __future__ import annotations
 from core.agent_base import BaseAgent
 from core.models import AgentRole, Task, ActionResult
@@ -12,6 +12,15 @@ FOCUS_SKILL_MD = {
     "research": "skills/research/issue_summarizer/SKILL.md",
 }
 
+HUMAN_CHECKLIST = (
+    "### Human-approved merge checklist\n"
+    "- [ ] Paths are allow-listed only\n"
+    "- [ ] No secrets in the diff\n"
+    "- [ ] NFA retained on market skills if touched\n"
+    "- [ ] Add label `human-approved` when ready\n"
+    "- [ ] Merge only after review\n"
+)
+
 class SelfImproveAgent(BaseAgent):
     def __init__(self, github=None, skills=None, memory=None, llm=None, **kwargs):
         role = AgentRole(
@@ -19,7 +28,7 @@ class SelfImproveAgent(BaseAgent):
             system_prompt=(
                 "You are the Self-Improve agent of RepoMind. "
                 "Propose small, safe, modular improvements. Prefer skills/ and marketplace/ over core/. "
-                "Never force-merge. Draft PRs only. Attach gated patch templates and minimal sketches."
+                "Never force-merge. Draft PRs only. Always include the human-approved checklist."
             ),
             allowed_skills=["self_improve/code_evolver"],
             max_iterations=3,
@@ -68,6 +77,7 @@ class SelfImproveAgent(BaseAgent):
         ])
         pr_url = None
         install_match = re.search(r"install\s+pack\s+([a-z0-9_\-]+)", text)
+        human_approved = "human-approved" in (task.labels or [])
 
         if wants_pr and self.github and (proposals or install_match):
             try:
@@ -76,7 +86,8 @@ class SelfImproveAgent(BaseAgent):
                 if isinstance(evolver_files, dict):
                     extra.update(evolver_files)
                 extra[f"memory/self_improve_runs/{ts}.md"] = (
-                    f"# Self-Improve run {ts}\n\nIssue #{task.issue_number}\nFocus: {focus}\nPhase: 6\n"
+                    f"# Self-Improve run {ts}\n\nIssue #{task.issue_number}\nFocus: {focus}\nPhase: 7\n"
+                    f"human_approved_label_present: {human_approved}\n"
                 )
                 skill_path = FOCUS_SKILL_MD.get(focus)
                 if skill_path:
@@ -90,8 +101,9 @@ class SelfImproveAgent(BaseAgent):
                         f"# Pending skill pack install\n\n"
                         f"Pack ID: `{pack_id}`\n"
                         f"Requested via Issue #{task.issue_number}\n"
-                        f"Status: pending human review\n\n"
-                        f"See marketplace/install.md for the safe install path.\n"
+                        f"Status: pending human review\n"
+                        f"Signed-pack note: verify marketplace/packs.json checksum if pinned\n\n"
+                        f"See marketplace/install.md and marketplace/SIGNED_PACKS.md.\n"
                     )
                 if not any(k.startswith("proposals/patches/") for k in extra):
                     extra[f"proposals/patches/{ts}.md"] = (
@@ -101,10 +113,13 @@ class SelfImproveAgent(BaseAgent):
                         f"### Safety\n- Draft PR only\n- Never auto-applied to main\n- Prefer minimal diffs under skills/\n"
                     )
                 pr_body = (
-                    f"## Self-Improve Draft PR (Phase 6)\n\n"
+                    f"## Self-Improve Draft PR (Phase 7)\n\n"
                     f"Triggered by Issue #{task.issue_number}: **{task.title}**\n\n{summary_md}\n\n"
-                    f"### Safety\n- **Draft** only\n- Includes proposals, patch templates/sketches, optional IMPROVE_NOTES, optional pending install notes\n"
-                    f"- Safe paths only\n\n### Rationale\n{rationale}\n"
+                    f"### Safety\n- **Draft** only – agents never merge\n"
+                    f"- Includes proposals, patch templates/sketches, optional IMPROVE_NOTES, optional pending installs\n"
+                    f"- Safe paths only\n\n"
+                    f"{HUMAN_CHECKLIST}\n"
+                    f"### Rationale\n{rationale}\n"
                 )
                 pr_url = self.github.create_draft_pr_from_proposal(
                     title=f"[Self-Improve] {task.title[:60]}",
@@ -115,10 +130,10 @@ class SelfImproveAgent(BaseAgent):
             except Exception as e:
                 pr_url = f"(failed to open draft PR: {e})"
 
-        lines = [f"**Self-Improve Agent** (focus: `{focus}` · Phase 6)", "", summary_md, "", f"_Rationale: {rationale}_", ""]
+        lines = [f"**Self-Improve Agent** (focus: `{focus}` · Phase 7)", "", summary_md, "", f"_Rationale: {rationale}_", ""]
         if pr_url and isinstance(pr_url, str) and pr_url.startswith("http"):
             lines += [
-                "### Draft PR opened (proposals + patch templates/sketches)",
+                "### Draft PR opened (Phase 7 human-approved checklist included)",
                 f"→ {pr_url}",
                 "",
                 "Review carefully. Nothing merges until you approve.",
@@ -129,7 +144,7 @@ class SelfImproveAgent(BaseAgent):
         lines += [
             "### Next actions for you",
             "1. Review proposals and files under proposals/patches/",
-            "2. For pack installs, review marketplace/pending_installs/ and marketplace/install.md",
+            "2. For pack installs, review marketplace/pending_installs/ + SIGNED_PACKS.md",
             "3. Add `human-approved` only when ready to merge",
             "",
             "_Agents never force-merge. Draft PRs only._",

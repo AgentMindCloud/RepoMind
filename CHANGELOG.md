@@ -1,16 +1,21 @@
 # Changelog
 
-## Phase 6 Complete – 2026-08-24
-- SelfImprove: minimal gated code sketches + patch templates in draft PRs
-- Skill pack install Issue convention (`install pack <id>`) → pending_install notes
-- Researcher multi-repo status
-- Stronger multi_repo helpers + install docs
+## [0.10.0] – Phase 7a (2026-08-24)
 
-## Phase 5 Complete
-- OI delta, marketplace scaffolding, multi-repo helpers, SelfImprove patch templates
+### Added
+- Human-approved merge checklist in SelfImprove draft PRs
+- Signed/pinned skill pack scaffolding (`marketplace/packs.json` v2, SIGNED_PACKS.md, checksum helpers)
+- Explicit multi-repo write policy gates
+- `docs/HUMAN_APPROVED.md`, `docs/PHASE7.md`
 
-## Phase 4 Complete
-- Open Interest, weekly X-Growth, IMPROVE_NOTES, LONG_TERM, tests
+## [0.9.0] – Phase 6 Complete
+- Minimal code sketches, pack install convention, multi-repo status
 
-## Phase 3 / 2 / 1
-- Full agent set, live market data, draft PRs, phone workflow, XAI_API_KEY
+## [0.8.x] – Phase 5 Complete
+- OIΔ, gated patch templates, marketplace start
+
+## [0.7.x] – Phase 4 Complete
+- OI, weekly X-Growth, IMPROVE_NOTES, tests
+
+## Earlier
+- Phases 1–3 core runtime through daily briefing

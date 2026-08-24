@@ -1,18 +1,26 @@
-# Multi-repo readiness (Phase 5)
-# Primary runtime repo
+# RepoMind multi-repo config – Phase 7
 primary:
-  owner: AgentMindCloud
-  name: RepoMind
+  full_name: AgentMindCloud/RepoMind
+  role: os
   default_branch: main
 
-# Future satellite repos (not auto-executed yet)
-satellites: []
-  # - owner: AgentMindCloud
-  #   name: example-satellite
-  #   roles: [skills-only]
+secondary: []
+  # Example:
+  # - full_name: AgentMindCloud/xlOS
+  #   role: satellite
+  #   allowed_actions: [read, comment]
+  #   write_requires_human_approved: true
 
-# Rules
-rules:
-  allow_cross_repo_comments: false
-  allow_cross_repo_prs: false
-  require_human_approval_for_satellites: true
+policy:
+  write_targets:
+    - proposals/
+    - docs/
+    - skills/
+    - memory/
+    - tests/
+    - marketplace/
+  never_auto_merge: true
+  require_human_approved_label: true
+  cross_repo_writes: false
+  cross_repo_comments: false
+  satellite_writes_require_human_approved: true

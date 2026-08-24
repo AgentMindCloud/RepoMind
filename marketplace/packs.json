@@ -1,6 +1,10 @@
 {
-  "version": "1.0.0",
-  "generated_for": "RepoMind Phase 5",
+  "version": "2.0.0",
+  "generated_for": "RepoMind Phase 7",
+  "signing": {
+    "scheme": "sha256-manifest",
+    "note": "Checksums are advisory integrity pins for human review. Not cryptographic package signatures yet."
+  },
   "packs": [
     {
       "id": "crypto-ta",
@@ -8,33 +12,46 @@
       "domain": "crypto",
       "safety": "medium",
       "version": "0.7.0",
-      "signals": ["rsi", "funding", "volume", "oi", "oi_delta"]
+      "signals": ["rsi", "funding", "volume", "oi", "oi_delta"],
+      "entry": "implementation.py",
+      "checksum_sha256": "pending-local-compute",
+      "pinned": true
     },
     {
       "id": "x-growth-threads",
       "path": "skills/x_growth/thread_factory",
       "domain": "growth",
       "safety": "low",
-      "version": "0.3.0"
+      "version": "0.3.0",
+      "entry": "implementation.py",
+      "checksum_sha256": "pending-local-compute",
+      "pinned": true
     },
     {
       "id": "self-improve-evolver",
       "path": "skills/self_improve/code_evolver",
       "domain": "meta",
       "safety": "low",
-      "version": "0.5.0"
+      "version": "0.6.0",
+      "entry": "implementation.py",
+      "checksum_sha256": "pending-local-compute",
+      "pinned": true
     },
     {
       "id": "research-issues",
       "path": "skills/research/issue_summarizer",
       "domain": "research",
       "safety": "low",
-      "version": "0.1.0"
+      "version": "0.1.0",
+      "entry": "implementation.py",
+      "checksum_sha256": "pending-local-compute",
+      "pinned": true
     }
   ],
   "policy": {
     "never_auto_merge": true,
     "require_human_approved_label": true,
-    "allowed_write_prefixes": ["proposals/", "docs/", "skills/", "memory/", "tests/", "marketplace/"]
+    "allowed_write_prefixes": ["proposals/", "docs/", "skills/", "memory/", "tests/", "marketplace/"],
+    "signed_packs_required_for_default": false
   }
 }
