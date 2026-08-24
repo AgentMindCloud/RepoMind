@@ -1,20 +1,27 @@
 # Changelog
 
-## Phase 4b – 2026-08-24
-- Weekly X-Growth draft workflow (cron Monday + manual)
-- LONG_TERM memory expanded with phase milestones and durable patterns
-- Basic tests for crypto symbols and orchestrator routing
+## Phase 4 Complete – 2026-08-24
 
-## Phase 4a
-- Open Interest in CryptoTA
-- Updated SelfImprove proposals
+### Phase 4 final
+- SelfImprove can attach **gated skill micro-notes** (`skills/*/IMPROVE_NOTES.md`) inside draft PRs
+- LONG_TERM memory entries on SelfImprove runs
+- Phase 4 marked complete
+
+### Phase 4b
+- Weekly X-Growth draft workflow
+- Stronger LONG_TERM memory
+- Basic symbol + routing tests
+
+### Phase 4a
+- CryptoTA Open Interest
 - Multi-repo readiness stub
+- Phase 4 scaffolding
 
-## Phase 3 Complete
-- Real proposal files in draft PRs, volume, daily briefing, runner self-check
+## Phase 3 Complete – 2026-08-24
+- Daily briefing, volume, draft PRs with real files, runner self-check
 
-## Phase 2 Complete
-- Multi-TF RSI + funding, Researcher, five agents, draft-PR capability
+## Phase 2 Complete – 2026-08-24
+- Five agents, multi-TF RSI + funding, Researcher, draft PRs
 
 ## Phase 1
-- Core runtime, phone workflow, XAI_API_KEY
+- Core multi-agent runtime, phone workflow

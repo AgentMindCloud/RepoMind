@@ -1,18 +1,27 @@
 # Working Memory
 
-**Phase 4b live**
+**Phase 4 COMPLETE**
 
-## Landed in Phase 4
-- CryptoTA: multi-TF RSI + funding + volume + **Open Interest**
-- Weekly X-Growth draft workflow (Monday cron + manual)
-- Stronger LONG_TERM memory
-- Basic symbol + routing tests
-- Multi-repo readiness stub (from 4a)
+## Live capabilities
+- Five agents: Critic, CryptoAnalyst, XGrowth, SelfImprove, Researcher
+- CryptoTA: multi-TF RSI + funding + volume + open interest
+- SelfImprove draft PRs with real proposal files + **gated skill IMPROVE_NOTES.md**
+- Weekly X-Growth draft workflow
+- Daily briefing workflow
+- LONG_TERM memory path
+- Basic tests
+- Runner self-check
+- XAI_API_KEY confirmed working
 
-## Still optional / remaining
-- SelfImprove gated micro-edits to skills/*/SKILL.md
-- More reliability tests
-- Richer scheduled multi-agent briefings
+## Phase 4 goals achieved
+1. ✅ Open Interest in CryptoTA
+2. ✅ Weekly X-Growth drafts
+3. ✅ Stronger LONG_TERM memory
+4. ✅ SelfImprove gated skill micro-notes (IMPROVE_NOTES.md next to SKILL.md)
+5. ✅ Basic reliability tests
 
-## Agents (5)
-Critic · CryptoAnalyst · XGrowth · SelfImprove · Researcher
+## Possible Phase 5 directions
+- SelfImprove applying real code patches to skill implementations (still gated)
+- OI historical delta / richer confluence
+- Multi-repo orchestration
+- Agent marketplace / skill packs

@@ -1,9 +1,19 @@
-"""Self-Improve Agent – Phase 3 (draft PRs with real proposal content)."""
+"""Self-Improve Agent – Phase 4 (draft PRs + gated SKILL.md micro-edits)."""
 from __future__ import annotations
 from core.agent_base import BaseAgent
 from core.models import AgentRole, Task, ActionResult
 from core.skill_loader import SkillLoader
 from datetime import datetime, timezone
+
+# Map focus → optional safe SKILL.md path for micro-notes
+FOCUS_SKILL_MD = {
+    "crypto": "skills/crypto/ta_scanner/SKILL.md",
+    "x_growth": "skills/x_growth/thread_factory/SKILL.md",
+    "tests": None,
+    "agents": None,
+    "core": None,
+    "general": None,
+}
 
 class SelfImproveAgent(BaseAgent):
     def __init__(self, github=None, skills=None, memory=None, llm=None, **kwargs):
@@ -13,7 +23,8 @@ class SelfImproveAgent(BaseAgent):
                 "You are the Self-Improve agent of RepoMind. "
                 "Propose small, safe, modular improvements. "
                 "Prefer skills/ and agents/ over core/. Always respect the Constitution. "
-                "Never force-merge. You may open *draft* PRs only and only write to safe paths."
+                "Never force-merge. You may open *draft* PRs only and only write to safe paths. "
+                "You may append short notes to skills/*/SKILL.md inside draft PRs."
             ),
             allowed_skills=["self_improve/code_evolver"],
             max_iterations=3,
@@ -34,12 +45,29 @@ class SelfImproveAgent(BaseAgent):
         wants_pr = any(w in text for w in ["pr", "pull request", "draft", "implement", "open pr", "create pr"])
         return ["call_code_evolver", "format_comment", "maybe_open_draft_pr"] if wants_pr else ["call_code_evolver", "format_comment"]
 
+    def _skill_md_note(self, focus: str, summary_md: str, ts: str) -> tuple:
+        """Return (path, content) for a gated SKILL.md micro-note, or (None, None)."""
+        path = FOCUS_SKILL_MD.get(focus)
+        if not path:
+            return None, None
+        note = (
+            f"\n\n---\n\n"
+            f"## Self-Improve note ({ts})\n\n"
+            f"Focus: `{focus}`\n\n"
+            f"Latest proposals (draft only):\n\n"
+            f"{summary_md[:800]}\n\n"
+            f"_This note was added by SelfImproveAgent inside a draft PR. "
+            f"Nothing is live until a human merges._\n"
+        )
+        return path, note
+
     async def act(self, plan: list, task: Task) -> ActionResult:
         result = {"summary": "No proposals", "proposals": [], "rationale": "n/a"}
+        focus = "general"
+        text = f"{(task.body or '')} {task.title}".lower()
+
         try:
             from skills.self_improve.code_evolver.implementation import evolve
-            focus = "general"
-            text = f"{(task.body or '')} {task.title}".lower()
             if "test" in text:
                 focus = "tests"
             elif "crypto" in text or "ta" in text:
@@ -52,8 +80,6 @@ class SelfImproveAgent(BaseAgent):
                 focus = "core"
             result = evolve(focus=focus, task=task.title)
         except Exception as e:
-            focus = "general"
-            text = f"{(task.body or '')} {task.title}".lower()
             result = {"summary": f"Could not load evolver: {e}", "proposals": [], "rationale": str(e)}
 
         summary_md = result.get("summary", "No proposals generated.")
@@ -72,13 +98,36 @@ class SelfImproveAgent(BaseAgent):
                     f"Focus: {focus}\n"
                     f"Proposals generated: {len(proposals) if isinstance(proposals, list) else 'n/a'}\n"
                 )
+
+                extra = {f"memory/self_improve_runs/{ts}.md": memory_note}
+
+                # Gated SKILL.md micro-edit (append-style note content)
+                skill_path, skill_note = self._skill_md_note(focus, summary_md, ts)
+                if skill_path and skill_note:
+                    # Write a companion note file rather than overwriting the whole SKILL.md blindly
+                    # Safer: create a skills/.../IMPROVE_NOTES.md next to SKILL.md
+                    note_path = skill_path.replace("SKILL.md", "IMPROVE_NOTES.md")
+                    extra[note_path] = (
+                        f"# Improve Notes – {skill_path}\n\n"
+                        f"{skill_note}\n"
+                    )
+
+                # Also append a short LONG_TERM entry
+                extra[f"memory/LONG_TERM.md"] = (
+                    f"# Long-Term Memory\n\n"
+                    f"## {ts} – SelfImprove on Issue #{task.issue_number}\n"
+                    f"- Focus: {focus}\n"
+                    f"- Draft PR opened with proposals\n"
+                    f"- Safe paths only\n\n"
+                )
+
                 pr_body = (
                     f"## Self-Improve Draft PR\n\n"
                     f"Triggered by Issue #{task.issue_number}: **{task.title}**\n\n"
                     f"{summary_md}\n\n"
                     f"### Safety\n"
                     f"- This is a **draft** PR only\n"
-                    f"- Writes only to safe paths (`proposals/`, `memory/`)\n"
+                    f"- Writes only to safe paths (`proposals/`, `memory/`, `skills/*/IMPROVE_NOTES.md`)\n"
                     f"- Requires human review before any merge to main\n\n"
                     f"### Rationale\n{rationale}\n"
                 )
@@ -86,7 +135,7 @@ class SelfImproveAgent(BaseAgent):
                     title=f"[Self-Improve] {task.title[:60]}",
                     body=pr_body,
                     branch_prefix="self-improve",
-                    extra_files={f"memory/self_improve_runs/{ts}.md": memory_note}
+                    extra_files=extra
                 )
             except Exception as e:
                 pr_url = f"(failed to open draft PR: {e})"
@@ -101,7 +150,7 @@ class SelfImproveAgent(BaseAgent):
         ]
         if pr_url and isinstance(pr_url, str) and pr_url.startswith("http"):
             lines += [
-                "### Draft PR opened (with real proposal files)",
+                "### Draft PR opened (with real proposal + skill notes)",
                 f"→ {pr_url}",
                 "",
                 "Review the draft PR. Nothing will be merged until you approve.",
