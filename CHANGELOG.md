@@ -1,18 +1,16 @@
 # Changelog
 
-## Phase 2c – 2026-08-24
-- **CryptoTA** upgraded to Binance public klines + RSI(14) on 4h closes
-- Bias now combines RSI levels + 24h momentum for simple confluence
-- Clearer table output with RSI column
-- CryptoAnalystAgent updated to match
+## Phase 2d – 2026-08-24
 
-## Phase 2b
-- SelfImprove fully rewritten with ranked proposals + “Next actions”
-- Better symbol extraction and agent comments
+### CryptoTA v0.4.0
+- Multi-timeframe RSI: 4h **and** 1d
+- Live Binance funding rate (USDT-M premiumIndex)
+- Stronger confluence scoring (RSI + 24h momentum + funding)
+- Updated markdown table with RSI 4h / RSI 1d / Funding columns
 
-## Phase 2a
-- Live USD prices + 24h change (CoinGecko)
-- LLM-aware X-Growth
+## Phase 2c
+- Binance 4h klines + RSI(14)
+- 24h momentum confluence
 
-## Phase 1j and earlier
-- Four specialized agents, USAGE.md, real XAI_API_KEY, CI, phone workflow
+## Phase 2b / 2a
+- Live prices, SelfImprove upgrades, LLM-aware X-Growth, clear USAGE docs
