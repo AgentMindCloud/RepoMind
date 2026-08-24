@@ -32,16 +32,19 @@ class CryptoAnalystAgent(BaseAgent):
 
     async def act(self, plan: list, task: Task) -> ActionResult:
         try:
-            from skills.crypto.ta_scanner.implementation import scan, run
-            # Prefer the richer scan interface
+            from skills.crypto.ta_scanner.implementation import scan
             result = scan(symbols=["BTC", "ETH", "SOL", "SUI", "XRP", "XLM"], timeframes=["4h", "1d"])
             summary = result.get("summary", "Scan completed")
-            disclaimer = result.get("disclaimer", "Not financial advice.")
+            live = result.get("live_prices", False)
 
             comment = (
-                f"**CryptoAnalystAgent** report:\n\n"
+                f"**CryptoAnalystAgent** report  
+"
+                f"Live prices: `{live}` | Version: `{result.get('version')}`\n\n"
                 f"{summary}\n\n"
-                f"{disclaimer}"
+                f"**Next actions for you:**\n"
+                f"- Reply if you want different symbols or a deeper dive\n"
+                f"- This is research only – never trade solely on agent output\n"
             )
             if self.github:
                 self.github.comment_on_issue(task.issue_number, comment)

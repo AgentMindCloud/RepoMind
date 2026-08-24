@@ -38,7 +38,6 @@ class XGrowthAgent(BaseAgent):
             if not topic:
                 topic = "RepoMind multi-agent OS"
 
-            # Choose style from labels or default
             style = "solo-dev"
             labels = [l.lower() for l in task.labels]
             if "contrarian" in labels:
@@ -48,17 +47,33 @@ class XGrowthAgent(BaseAgent):
             elif "build-log" in labels or "log" in labels:
                 style = "build-log"
 
-            result = generate_thread(topic=topic, style=style, length=6, include_visuals=True)
+            # Pass the live LLM client so the skill can use real Grok
+            result = generate_thread(
+                topic=topic,
+                style=style,
+                length=6,
+                include_visuals=True,
+                llm=self.llm
+            )
             draft = format_for_x(result.get("thread", []))
             visuals = result.get("visual_ideas", [])
+            used_llm = result.get("used_llm", False)
 
             comment = (
-                f"**XGrowthAgent** draft ready for review (style: `{style}`):\n\n"
+                f"**XGrowthAgent** draft ready for review  
+"
+                f"Style: `{style}` | LLM used: `{used_llm}`\n\n"
                 f"```\n{draft}\n```\n\n"
             )
             if visuals:
                 comment += "**Visual ideas:**\n" + "\n".join(f"- {v}" for v in visuals) + "\n\n"
-            comment += "*Human approval required before any live posting.*"
+            comment += (
+                "**Next actions for you:**\n"
+                "- Copy and post (or edit) the thread\n"
+                "- Reply on this Issue if you want a different angle/style\n"
+                "- Agents never auto-post\n\n"
+                "*Human approval required before any live posting.*"
+            )
 
             if self.github:
                 self.github.comment_on_issue(task.issue_number, comment)

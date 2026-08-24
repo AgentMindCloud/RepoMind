@@ -1,20 +1,17 @@
 # Changelog
 
-## [Unreleased] / Phase 1h – 1i
+## Phase 2a – 2026-08-24
+- **Crypto TA skill** now pulls live USD prices + 24h change from CoinGecko public API
+- Simple momentum heuristic bias added (full indicators still coming)
+- **SelfImprove** proposals are now prioritized and structured
+- **XGrowthAgent** passes the live LLM client so drafts can use real Grok
+- All major agents now include a clear "Next actions for you" section in comments
+- Memory and docs updated
 
-### Added
-- Four specialized agents: Critic (default), CryptoAnalyst, XGrowth, SelfImprove
-- CI test workflow (`.github/workflows/tests.yml`)
-- Phone workflow docs
-- Basic orchestrator routing tests
-- Self-improve skill with concrete proposal list
-- Expanded X-Growth thread_factory (magnetic templates + visual ideas)
+## Phase 1j
+- Clear USAGE.md guide
+- LLM-aware X-Growth skill (template fallback)
+- Confirmed working with real XAI_API_KEY
 
-### Changed
-- Orchestrator now auto-registers all four agents
-- TA scanner interface cleaned (accepts symbols / timeframe flexibly)
-- README and memory kept in sync with current phase
-
-### Notes
-- Full LLM power still requires `XAI_API_KEY` secret (to be added on PC)
-- Real market data for CryptoTA is the next major unlock
+## Earlier phases
+- Core runtime, four specialized agents, skill contracts, CI, phone workflow
