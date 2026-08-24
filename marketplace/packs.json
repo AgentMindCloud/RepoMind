@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "generated_for": "RepoMind Phase 5",
+  "packs": [
+    {
+      "id": "crypto-ta",
+      "path": "skills/crypto/ta_scanner",
+      "domain": "crypto",
+      "safety": "medium",
+      "version": "0.7.0",
+      "signals": ["rsi", "funding", "volume", "oi", "oi_delta"]
+    },
+    {
+      "id": "x-growth-threads",
+      "path": "skills/x_growth/thread_factory",
+      "domain": "growth",
+      "safety": "low",
+      "version": "0.3.0"
+    },
+    {
+      "id": "self-improve-evolver",
+      "path": "skills/self_improve/code_evolver",
+      "domain": "meta",
+      "safety": "low",
+      "version": "0.5.0"
+    },
+    {
+      "id": "research-issues",
+      "path": "skills/research/issue_summarizer",
+      "domain": "research",
+      "safety": "low",
+      "version": "0.1.0"
+    }
+  ],
+  "policy": {
+    "never_auto_merge": true,
+    "require_human_approved_label": true,
+    "allowed_write_prefixes": ["proposals/", "docs/", "skills/", "memory/", "tests/", "marketplace/"]
+  }
+}
