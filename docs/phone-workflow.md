@@ -5,17 +5,20 @@ Everything runs from GitHub mobile + Actions. No local machine required for norm
 ## Daily loop
 1. Open or create an Issue on GitHub mobile.
 2. Add one of these labels:
-   - `task` or `agent` → Critic (safe default)
+   - `task` / `agent` / `critic` → Critic (safe default)
    - `crypto` / `ta` → CryptoAnalystAgent
-   - `x-growth` / `thread` → XGrowthAgent
-3. The scheduled / event-driven workflow runs `agents/base_runner.py`.
+   - `x-growth` / `growth` / `thread` → XGrowthAgent
+   - `self-improve` / `evolve` → SelfImproveAgent
+3. The workflow runs `agents/base_runner.py`.
 4. Agents comment results or drafts directly on the Issue.
-5. Review on your phone. Merge any PRs that appear.
-6. For changes to `core/` or `contracts/`: add the `human-approved` label before merge.
+5. Review on your phone.
 
-## Secrets (do once on PC)
-- `XAI_API_KEY` (required for real LLM power)
-- Optional: X API keys later for live posting skills
+## Manual trigger (when you want it now)
+- Comment `/run` on the Issue, **or**
+- Actions → RepoMind Agent Runner → Run workflow → type the Issue number
 
-## Manual trigger
-Actions → RepoMind Agent Runner → Run workflow → optionally pass an issue number.
+## Secrets (already done)
+- `XAI_API_KEY` is set → real Grok power is available
+
+## Full simple guide
+See [USAGE.md](USAGE.md) for the clearest step-by-step instructions.
