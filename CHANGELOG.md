@@ -1,18 +1,15 @@
 # Changelog
 
-## Phase 5a – 2026-08-24
-- CryptoTA: **OI delta (~24h)** from Binance openInterestHist
-- Marketplace scaffolding (`marketplace/SKILL_PACKS.md`, `registry.yaml`)
-- Multi-repo readiness helpers (`core/multi_repo.py`)
+## Phase 6a – 2026-08-24
+- Multi-repo status reporting in Researcher
+- Skill pack install flow scaffolding (`marketplace/install.md`)
+- Stronger `core/multi_repo.py` helpers
 
-## Phase 4 Complete – 2026-08-24
-- Open Interest, weekly X-Growth, skill IMPROVE_NOTES, LONG_TERM memory, tests
+## Phase 5 Complete
+- OI delta, marketplace registry, multi-repo helpers, SelfImprove gated patch templates
 
-## Phase 3 Complete – 2026-08-24
-- Daily briefing, volume, draft PRs with real files, runner self-check
+## Phase 4 Complete
+- Open Interest, weekly X-Growth, IMPROVE_NOTES, LONG_TERM, tests
 
-## Phase 2 Complete – 2026-08-24
-- Five agents, multi-TF RSI + funding, Researcher
-
-## Phase 1
-- Core multi-agent runtime, phone workflow
+## Phase 3 / 2 / 1
+- Full agent set, live market data, draft PRs, phone workflow, XAI_API_KEY

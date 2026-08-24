@@ -1,17 +1,19 @@
 # Working Memory
 
-**Phase 5a live**
+**Phase 6a live**
 
-## Landed
-- CryptoTA v0.7: RSI + funding + volume + OI + **OI Δ (~24h)**
-- Marketplace scaffolding (`marketplace/`)
-- Multi-repo helpers (`core/multi_repo.py` + `config/repos.yaml`)
-- Phase 5 started
+## Phase 5 (complete)
+- OI delta, marketplace scaffolding, multi-repo helpers, SelfImprove patch templates
 
-## Still Phase 5
-- SelfImprove gated real code patches to skills/*/implementation.py
-- Agent marketplace discovery endpoint / richer registry
-- More tests around OI delta + multi-repo config
+## Phase 6 landed
+- Multi-repo **status reporting** via Researcher
+- Skill pack **install flow docs** (`marketplace/install.md`)
+- Stronger multi_repo helpers (list satellites, policy-aware status)
 
-## Agents (5)
+## Still finishing Phase 6
+- SelfImprove real minimal additive code diffs in draft PRs
+- Pack install Issue convention fully wired
+- Final Phase 6 complete stamp
+
+## Agents
 Critic · CryptoAnalyst · XGrowth · SelfImprove · Researcher
