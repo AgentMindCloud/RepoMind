@@ -1,0 +1,23 @@
+# RepoMind multi-repo readiness (Phase 4)
+# Primary repo is always the current GITHUB_REPOSITORY.
+# Secondary repos are optional future targets for research / sync agents.
+
+primary:
+  full_name: AgentMindCloud/RepoMind
+  role: os
+
+secondary: []
+  # Example future entries:
+  # - full_name: AgentMindCloud/xlOS
+  #   role: satellite
+  #   allowed_actions: [read, comment]
+
+policy:
+  write_targets:
+    - proposals/
+    - docs/
+    - skills/
+    - memory/
+    - tests/
+  never_auto_merge: true
+  require_human_approved_label: true

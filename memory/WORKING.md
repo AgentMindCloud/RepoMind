@@ -1,24 +1,17 @@
 # Working Memory
 
-**Phase 3 COMPLETE**
+**Phase 4a in progress**
 
-## Live capabilities
-- Five agents: Critic, CryptoAnalyst, XGrowth, SelfImprove, Researcher
-- CryptoTA: multi-TF RSI + funding + volume
-- SelfImprove opens draft PRs **with real proposal content** (safe paths only)
-- Daily briefing workflow (cron 00:00 UTC + manual)
-- base_runner self-check on startup
-- XAI_API_KEY confirmed working
+## Landed
+- CryptoTA v0.6: multi-TF RSI + funding + volume + **open interest**
+- Phase 4 code evolver proposals
+- `config/repos.yaml` multi-repo readiness stub
+- docs/PHASE4.md
 
-## Phase 3 goals achieved
-1. ✅ Daily autonomous briefing
-2. ✅ Volume enrichment in CryptoTA
-3. ✅ SelfImprove writes real files into draft PRs (proposals/ + memory/)
-4. ✅ Stronger runner observability (self-check)
-5. ✅ Safe-path enforcement for agent file writes
+## Still Phase 4
+- SelfImprove gated micro-edits to skills/ SKILL.md when relevant
+- Weekly X-Growth draft Issue workflow
+- Symbol-extraction tests
 
-## Possible Phase 4 directions
-- SelfImprove making tiny real code edits to skills/ (still gated)
-- Open Interest / more advanced confluence
-- Multi-repo support
-- Scheduled X growth drafts
+## Agents (5)
+Critic · CryptoAnalyst · XGrowth · SelfImprove · Researcher

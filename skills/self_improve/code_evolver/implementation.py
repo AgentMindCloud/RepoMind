@@ -1,50 +1,44 @@
-"""Self-Improve Code Evolver – Phase 2a (stronger, prioritized proposals)."""
-from typing import Dict, Any, List
+"""Self-Improve Code Evolver – Phase 4a."""
+from typing import Dict, Any
+from datetime import datetime, timezone
 
 def evolve(focus: str = "general", task: str = "", llm=None) -> Dict[str, Any]:
-    # High-value, ordered proposals for the current state of RepoMind
     all_proposals = [
         {
             "priority": "high",
-            "area": "crypto/ta_scanner",
-            "idea": "Add real OHLCV + funding rate (Binance public endpoints) and simple RSI/MACD confluence",
-            "effort": "medium"
+            "area": "skills/crypto/ta_scanner",
+            "idea": "Add 1h RSI column next to 4h/1d for shorter-term context",
+            "effort": "low",
         },
         {
             "priority": "high",
-            "area": "x_growth/thread_factory",
-            "idea": "Pass LLMClient from XGrowthAgent so every draft uses real Grok by default",
-            "effort": "low"
-        },
-        {
-            "priority": "high",
-            "area": "agents",
-            "idea": "Make all agents include a clear 'Next actions for human' section in comments",
-            "effort": "low"
+            "area": "agents/self_improve_agent",
+            "idea": "When focus=crypto, attach a suggested SKILL.md micro-bump in the draft PR",
+            "effort": "medium",
         },
         {
             "priority": "medium",
-            "area": "core/github_client",
-            "idea": "Add create_pull_request helper that opens draft PRs from SelfImprove proposals",
-            "effort": "medium"
+            "area": "core",
+            "idea": "Optional multi-repo config: list secondary repos for future orchestration",
+            "effort": "medium",
+        },
+        {
+            "priority": "medium",
+            "area": ".github/workflows",
+            "idea": "Weekly X-Growth draft Issue (manual approval still required before posting)",
+            "effort": "medium",
         },
         {
             "priority": "medium",
             "area": "tests",
-            "idea": "Add integration-style tests for skill contracts and routing",
-            "effort": "medium"
-        },
-        {
-            "priority": "medium",
-            "area": "skills",
-            "idea": "Create a Researcher skill that can summarize recent Issues + PRs",
-            "effort": "medium"
+            "idea": "Add symbol-extraction unit tests for CryptoAnalyst",
+            "effort": "low",
         },
         {
             "priority": "low",
             "area": "docs",
-            "idea": "Add a short 'Agent personality' section to each agent role YAML",
-            "effort": "low"
+            "idea": "Phase 4 architecture notes for multi-repo readiness",
+            "effort": "low",
         },
     ]
 
@@ -54,24 +48,38 @@ def evolve(focus: str = "general", task: str = "", llm=None) -> Dict[str, Any]:
     else:
         proposals = all_proposals
 
-    # Build readable output
-    lines = ["## Self-Improve Proposals\n"]
+    lines = ["## Self-Improve Proposals (Phase 4)\n"]
     for i, p in enumerate(proposals, 1):
         lines.append(f"{i}. **[{p['priority'].upper()}] {p['area']}**")
-        lines.append(f"   {p['idea']}  
-")
+        lines.append(f"   {p['idea']}  ")
         lines.append(f"   Effort: {p['effort']}\n")
 
     summary = "\n".join(lines)
     if task:
-        summary = f"Context from Issue: {task[:120]}\n\n" + summary
+        summary = f"Context: {task[:120]}\n\n" + summary
+
+    ts = datetime.now(timezone.utc)
+    stamp = ts.strftime("%Y%m%d-%H%M%S")
+
+    safe_files = {
+        f"proposals/phase4-{stamp}.md": (
+            f"# Self-Improve Proposal (Phase 4)\n\n"
+            f"Generated: {ts.strftime('%Y-%m-%d %H:%M UTC')}\n"
+            f"Task: {task or 'n/a'}\nFocus: {focus}\n\n"
+            f"{summary}\n\n"
+            f"---\nDraft only. Requires human review before merge.\n"
+        )
+    }
 
     return {
         "proposals": proposals,
         "proposal": proposals[0]["idea"] if proposals else "No proposals",
         "summary": summary,
-        "rationale": "Prioritized by impact on the live multi-agent loop and phone-first usability.",
-        "version": "0.2.0"
+        "rationale": "Phase 4 priorities: OI confluence, gated skill edits, multi-repo readiness, scheduled growth drafts.",
+        "safe_files": safe_files,
+        "extra_files": safe_files,
+        "version": "0.4.0",
+        "timestamp": ts.isoformat(),
     }
 
 def run(**kwargs) -> Dict[str, Any]:

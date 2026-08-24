@@ -1,7 +1,7 @@
-"""Crypto TA Scanner – Phase 3a
-Binance multi-TF RSI + funding + volume confluence.
+"""Crypto TA Scanner – Phase 4a
+Binance multi-TF RSI + funding + volume + open interest.
 """
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime, timezone
 import httpx
 
@@ -10,6 +10,7 @@ DISCLAIMER = "**Not financial advice.** DYOR. Experimental agent skill for resea
 BINANCE_KLINES = "https://api.binance.com/api/v3/klines"
 BINANCE_TICKER = "https://api.binance.com/api/v3/ticker/24hr"
 BINANCE_PREMIUM = "https://fapi.binance.com/fapi/v1/premiumIndex"
+BINANCE_OI = "https://fapi.binance.com/fapi/v1/openInterest"
 
 SYMBOL_MAP = {
     "BTC": "BTCUSDT",
@@ -35,7 +36,6 @@ def _rsi(closes: List[float], period: int = 14) -> Optional[float]:
 
     avg_gain = sum(gains[:period]) / period
     avg_loss = sum(losses[:period]) / period
-
     for i in range(period, len(gains)):
         avg_gain = (avg_gain * (period - 1) + gains[i]) / period
         avg_loss = (avg_loss * (period - 1) + losses[i]) / period
@@ -52,13 +52,10 @@ def _fetch_klines(symbol: str, interval: str = "4h", limit: int = 100) -> List[f
     try:
         with httpx.Client(timeout=12.0) as client:
             r = client.get(BINANCE_KLINES, params={
-                "symbol": pair,
-                "interval": interval,
-                "limit": limit
+                "symbol": pair, "interval": interval, "limit": limit
             })
             r.raise_for_status()
-            data = r.json()
-            return [float(c[4]) for c in data]
+            return [float(c[4]) for c in r.json()]
     except Exception as e:
         print(f"Klines failed {symbol} {interval}: {e}")
         return []
@@ -96,13 +93,35 @@ def _fetch_funding(symbol: str) -> Optional[float]:
         with httpx.Client(timeout=10.0) as client:
             r = client.get(BINANCE_PREMIUM, params={"symbol": pair})
             r.raise_for_status()
-            data = r.json()
-            return float(data.get("lastFundingRate", 0)) * 100
+            return float(r.json().get("lastFundingRate", 0)) * 100
     except Exception as e:
         print(f"Funding failed {symbol}: {e}")
         return None
 
-def _confluence(rsi_4h, rsi_1d, change_24h, funding, volume) -> tuple:
+def _fetch_oi(symbol: str) -> Optional[float]:
+    pair = SYMBOL_MAP.get(symbol.upper())
+    if not pair:
+        return None
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            r = client.get(BINANCE_OI, params={"symbol": pair})
+            r.raise_for_status()
+            oi = r.json().get("openInterest")
+            return float(oi) if oi is not None else None
+    except Exception as e:
+        print(f"OI failed {symbol}: {e}")
+        return None
+
+def _fmt_oi(oi: Optional[float]) -> str:
+    if oi is None:
+        return "–"
+    if oi >= 1_000_000:
+        return f"{oi/1_000_000:.2f}M"
+    if oi >= 1_000:
+        return f"{oi/1_000:.1f}K"
+    return f"{oi:.0f}"
+
+def _confluence(rsi_4h, rsi_1d, change_24h, funding, volume, oi) -> Tuple[str, int, List[str]]:
     reasons = []
     score = 0.0
 
@@ -153,11 +172,16 @@ def _confluence(rsi_4h, rsi_1d, change_24h, funding, volume) -> tuple:
             reasons.append(f"Funding {funding:.3f}%")
 
     if volume is not None and volume > 0:
-        # Just surface volume, light influence
         vol_m = volume / 1_000_000
         reasons.append(f"Vol ${vol_m:.1f}M")
-        if vol_m > 500:  # high activity
+        if vol_m > 500:
             score += 0.2 if (change_24h or 0) > 0 else -0.1
+
+    if oi is not None:
+        reasons.append(f"OI {_fmt_oi(oi)}")
+        # OI alone is context; combined with strong momentum it lightly reinforces
+        if oi > 50_000 and change_24h is not None and abs(change_24h) >= 3:
+            score += 0.15 if change_24h > 0 else -0.15
 
     conf = max(0, min(5, int(round(abs(score) + 1.5))))
     if score >= 2.0:
@@ -196,13 +220,14 @@ def scan(
         rsi_4h = _rsi(closes_4h) if closes_4h else None
         rsi_1d = _rsi(closes_1d) if closes_1d else None
         funding = _fetch_funding(sym)
+        oi = _fetch_oi(sym)
 
         t = ticker.get(sym, {})
         change = t.get("change_24h")
         price = t.get("price")
         volume = t.get("volume")
 
-        bias, conf, reasons = _confluence(rsi_4h, rsi_1d, change, funding, volume)
+        bias, conf, reasons = _confluence(rsi_4h, rsi_1d, change, funding, volume, oi)
 
         price_str = f"${price:,.2f}" if price and price >= 1 else (f"${price:.4f}" if price else "–")
         chg_str = f"{change:+.1f}%" if change is not None else "–"
@@ -210,39 +235,41 @@ def scan(
         rsi1_str = str(rsi_1d) if rsi_1d is not None else "–"
         fund_str = f"{funding:.3f}%" if funding is not None else "–"
         vol_str = f"${volume/1e6:.1f}M" if volume else "–"
-        notes = "; ".join(reasons[:3]) if reasons else "No data"
+        oi_str = _fmt_oi(oi)
 
         signals.append({
             "symbol": sym,
             "price": price,
             "change_24h": change,
             "volume": volume,
+            "open_interest": oi,
             "rsi_4h": rsi_4h,
             "rsi_1d": rsi_1d,
             "funding": funding,
             "bias": bias,
             "confluence": conf,
-            "notes": notes,
+            "notes": "; ".join(reasons[:4]) if reasons else "No data",
             "reasons": reasons,
         })
 
         rows.append(
-            f"| {sym} | {price_str} | {chg_str} | {rsi4_str} | {rsi1_str} | {fund_str} | {vol_str} | {bias} | {conf}/5 |"
+            f"| {sym} | {price_str} | {chg_str} | {rsi4_str} | {rsi1_str} | {fund_str} | {vol_str} | {oi_str} | {bias} | {conf}/5 |"
         )
 
     lines = [
-        "# Crypto TA Scan – Phase 3a (RSI + Funding + Volume)",
+        "# Crypto TA Scan – Phase 4a (RSI + Funding + Volume + OI)",
         f"Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')} UTC",
-        "Source: Binance public klines + ticker + funding",
+        "Source: Binance public klines + ticker + funding + open interest",
         "",
-        "| Symbol | Price | 24h | RSI 4h | RSI 1d | Funding | Volume | Bias | Conf |",
-        "|--------|-------|-----|--------|--------|---------|--------|------|------|",
+        "| Symbol | Price | 24h | RSI 4h | RSI 1d | Funding | Volume | OI | Bias | Conf |",
+        "|--------|-------|-----|--------|--------|---------|--------|----|------|------|",
     ] + rows + [
         "",
         "### Method",
         "- RSI(14) on 4h and 1d",
         "- 24h price change + quote volume",
         "- Perpetual funding rate",
+        "- Futures open interest (contracts)",
         "- Weighted confluence → bias",
         "",
         DISCLAIMER
@@ -252,11 +279,12 @@ def scan(
         "signals": signals,
         "summary": "\n".join(lines),
         "disclaimer": DISCLAIMER,
-        "version": "0.5.0",
+        "version": "0.6.0",
         "live_prices": bool(ticker),
         "has_rsi": any(s.get("rsi_4h") is not None for s in signals),
         "has_funding": any(s.get("funding") is not None for s in signals),
         "has_volume": any(s.get("volume") for s in signals),
+        "has_oi": any(s.get("open_interest") is not None for s in signals),
         "generated_at": datetime.now(timezone.utc).isoformat()
     }
 

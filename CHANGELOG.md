@@ -1,21 +1,18 @@
 # Changelog
 
-## Phase 3 Complete – 2026-08-24
+## [0.7.0] – Phase 4a (2026-08-24)
 
-### Phase 3 final
-- SelfImprove draft PRs now include **real proposal content** + memory run notes
-- base_runner startup self-check (agents, secrets, API)
-- Safe-path enforcement for agent file writes
+### Added
+- CryptoTA **open interest** column (Binance USDT-M public endpoint)
+- `config/repos.yaml` multi-repo readiness stub
+- Phase 4 code evolver proposals + proposal artifacts
+- `docs/PHASE4.md`
 
-### Phase 3b
-- GitHubClient: `create_draft_pr_with_files` + `extra_files` support
+## [0.6.x] – Phase 3 Complete
+- Volume enrichment, daily briefing, SelfImprove real draft-PR files, runner self-check
 
-### Phase 3a
-- Daily Briefing workflow (cron + manual)
-- CryptoTA: 24h quote volume in confluence table
+## [0.5.0] – Phase 2 Complete
+- Researcher agent, multi-TF RSI + funding, five agents, LLM X-Growth
 
-## Phase 2 Complete – 2026-08-24
-- Five agents, multi-TF RSI + funding, draft PRs, Researcher, USAGE guide
-
-## Phase 1
-- Core multi-agent runtime, phone workflow
+## Earlier
+- Phase 1 core runtime
