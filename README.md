@@ -22,11 +22,11 @@ Full guide → [docs/USAGE.md](docs/USAGE.md)
 - **Critic** – safety & constitution reviews
 - **CryptoAnalyst** – live Binance data + multi-TF RSI + funding + volume + OI + OIΔ
 - **XGrowth** – LLM-powered thread drafts
-- **SelfImprove** – ranked proposals + draft PRs with files / notes / patch templates / minimal sketches
+- **SelfImprove** – ranked proposals + draft PRs + human-approved checklist + pack install
 - **Researcher** – open Issues summary + multi-repo status
 
 ## Current Status
-**Phase 6 Complete** – Multi-repo status, skill-pack install scaffolding, and SelfImprove minimal gated code sketches.
+**Phase 8a** – CI hygiene (green tests), real pack checksum verification helpers, multi-repo policy tests.
 
 ## Scheduled workflows
 - Daily Briefing
@@ -37,7 +37,7 @@ Full guide → [docs/USAGE.md](docs/USAGE.md)
 core/          orchestrator, GitHub client, multi-repo, LLM, safety
 agents/        five specialized agents
 skills/        modular skill packs
-marketplace/   registry + install flow
+marketplace/   registry + signed packs + checksum helpers
 config/        repos.yaml
 .github/       Actions runtime
 ```

@@ -20,7 +20,23 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install pytest
-      - name: Run tests
+      - name: Run unit tests
+        run: python -m pytest tests/ -v --tb=short
+      - name: Verify pack checksums (advisory)
         run: |
-          python -m pytest tests/ -v --tb=short || true
-        # || true so the workflow does not fail hard while tests are still early
+          python -c "
+          from marketplace.checksums import load_packs, sha256_file
+          import os, json
+          data = load_packs()
+          packs = data.get('packs') or []
+          print(f'Packs loaded: {len(packs)}')
+          for p in packs:
+              entry = p.get('entry') or 'implementation.py'
+              rel = os.path.join(p.get('path', ''), entry)
+              actual = sha256_file(rel)
+              expected = p.get('checksum_sha256')
+              status = 'PINNED' if expected and expected != 'pending-local-compute' else 'ADVISORY'
+              print(f\"  {p.get('id')}: {status} path={rel} actual={actual[:12] if actual else None}...\")
+              assert actual, f'Missing file for pack {p.get(\"id\")}: {rel}'
+          print('Pack path verification OK')
+          "

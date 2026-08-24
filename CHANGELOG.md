@@ -1,21 +1,17 @@
 # Changelog
 
-## [0.10.0] – Phase 7a (2026-08-24)
+## Phase 8a – 2026-08-24
+- Fixed weekly-x-growth workflow red noise on push (validate-only path)
+- tests.yml: hard-fail tests + pack path verification step
+- marketplace/checksums.py: compute_pack_checksums + verify_all_pack_paths
+- New tests: pack checksums + multi-repo policy
+- Phase 8 kicked off
 
-### Added
-- Human-approved merge checklist in SelfImprove draft PRs
-- Signed/pinned skill pack scaffolding (`marketplace/packs.json` v2, SIGNED_PACKS.md, checksum helpers)
-- Explicit multi-repo write policy gates
-- `docs/HUMAN_APPROVED.md`, `docs/PHASE7.md`
+## Phase 7 – functionally complete
+- Human-approved merge checklist, signed pack scaffolding, multi-repo write policy
 
-## [0.9.0] – Phase 6 Complete
+## Phase 6 Complete
 - Minimal code sketches, pack install convention, multi-repo status
 
-## [0.8.x] – Phase 5 Complete
-- OIΔ, gated patch templates, marketplace start
-
-## [0.7.x] – Phase 4 Complete
-- OI, weekly X-Growth, IMPROVE_NOTES, tests
-
-## Earlier
-- Phases 1–3 core runtime through daily briefing
+## Phase 5 / 4 / 3 / 2 / 1
+- Full agent set through live market data, draft PRs, phone workflow

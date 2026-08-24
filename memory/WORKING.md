@@ -1,17 +1,20 @@
 # Working Memory
 
-**Phase 7a in progress**
+**Phase 8a live**
 
-## Landed
-- Human-approved merge checklist in SelfImprove draft PRs
-- Signed skill pack scaffolding (`packs.json` v2, SIGNED_PACKS.md, checksum helpers)
-- Multi-repo write policy explicit (`cross_repo_writes: false` by default)
-- Phase 6 capabilities retained
+## Phase 7 (functionally complete)
+- Human-approved checklist, signed pack scaffolding, multi-repo write policy
 
-## Still Phase 7 (optional remaining)
-- Real sha256 fill-in for each pack entry
-- Researcher always includes multi-repo status_report()
-- Historical confluence notes into LONG_TERM
+## Phase 8 landed
+- Fixed weekly-x-growth red phantom runs on every push
+- Stronger tests.yml (hard fail on test failure + pack path verification)
+- Real pack checksum helpers + unit tests
+- multi_repo policy unit tests
 
-## Agents (5)
+## Still Phase 8
+- Optionally pin real sha256 values into packs.json after CI computes them
+- Tiny human-approved skill-diff guidance path
+- STATUS auto-refresh polish
+
+## Agents
 Critic · CryptoAnalyst · XGrowth · SelfImprove · Researcher
