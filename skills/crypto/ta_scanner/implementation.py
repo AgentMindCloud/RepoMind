@@ -1,4 +1,6 @@
-"""Crypto TA Scanner – Phase 2c with Binance klines + RSI(14)."""
+"""Crypto TA Scanner – Phase 2d
+Binance klines + multi-timeframe RSI(14) + funding rate confluence.
+"""
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 import httpx
@@ -7,6 +9,7 @@ DISCLAIMER = "**Not financial advice.** DYOR. Experimental agent skill for resea
 
 BINANCE_KLINES = "https://api.binance.com/api/v3/klines"
 BINANCE_TICKER = "https://api.binance.com/api/v3/ticker/24hr"
+BINANCE_PREMIUM = "https://fapi.binance.com/fapi/v1/premiumIndex"
 
 SYMBOL_MAP = {
     "BTC": "BTCUSDT",
@@ -22,7 +25,6 @@ SYMBOL_MAP = {
 }
 
 def _rsi(closes: List[float], period: int = 14) -> Optional[float]:
-    """Calculate RSI(14)."""
     if len(closes) < period + 1:
         return None
     gains, losses = [], []
@@ -30,15 +32,20 @@ def _rsi(closes: List[float], period: int = 14) -> Optional[float]:
         diff = closes[i] - closes[i - 1]
         gains.append(max(diff, 0.0))
         losses.append(max(-diff, 0.0))
-    avg_gain = sum(gains[-period:]) / period
-    avg_loss = sum(losses[-period:]) / period
+
+    avg_gain = sum(gains[:period]) / period
+    avg_loss = sum(losses[:period]) / period
+
+    for i in range(period, len(gains)):
+        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
+        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
+
     if avg_loss == 0:
         return 100.0
     rs = avg_gain / avg_loss
     return round(100 - (100 / (1 + rs)), 1)
 
-def _fetch_klines(symbol: str, interval: str = "4h", limit: int = 50) -> List[float]:
-    """Return list of close prices from Binance."""
+def _fetch_klines(symbol: str, interval: str = "4h", limit: int = 100) -> List[float]:
     pair = SYMBOL_MAP.get(symbol.upper())
     if not pair:
         return []
@@ -51,13 +58,12 @@ def _fetch_klines(symbol: str, interval: str = "4h", limit: int = 50) -> List[fl
             })
             r.raise_for_status()
             data = r.json()
-            return [float(candle[4]) for candle in data]  # close
+            return [float(c[4]) for c in data]
     except Exception as e:
-        print(f"Klines failed for {symbol}: {e}")
+        print(f"Klines failed {symbol} {interval}: {e}")
         return []
 
 def _fetch_24h(symbols: List[str]) -> Dict[str, Dict[str, Any]]:
-    """Fetch 24h ticker data."""
     try:
         with httpx.Client(timeout=12.0) as client:
             r = client.get(BINANCE_TICKER)
@@ -81,59 +87,92 @@ def _fetch_24h(symbols: List[str]) -> Dict[str, Dict[str, Any]]:
                     pass
     return result
 
-def _bias(rsi: Optional[float], change_24h: Optional[float]) -> tuple[str, int, List[str]]:
-    """Simple confluence from RSI + 24h change."""
+def _fetch_funding(symbol: str) -> Optional[float]:
+    """Current funding rate from Binance Futures (public)."""
+    pair = SYMBOL_MAP.get(symbol.upper())
+    if not pair:
+        return None
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            r = client.get(BINANCE_PREMIUM, params={"symbol": pair})
+            r.raise_for_status()
+            data = r.json()
+            return float(data.get("lastFundingRate", 0)) * 100  # to percent
+    except Exception as e:
+        print(f"Funding failed {symbol}: {e}")
+        return None
+
+def _confluence(rsi_4h: Optional[float], rsi_1d: Optional[float],
+                change_24h: Optional[float], funding: Optional[float]) -> tuple[str, int, List[str]]:
     reasons = []
     score = 0.0
 
-    if rsi is not None:
-        if rsi >= 70:
-            reasons.append(f"RSI {rsi} overbought")
-            score -= 1.0
-        elif rsi <= 30:
-            reasons.append(f"RSI {rsi} oversold")
-            score += 1.0
-        elif rsi >= 60:
-            reasons.append(f"RSI {rsi} elevated")
-            score -= 0.3
-        elif rsi <= 40:
-            reasons.append(f"RSI {rsi} low")
-            score += 0.3
-        else:
-            reasons.append(f"RSI {rsi}")
-
-    if change_24h is not None:
-        if change_24h >= 4.0:
-            reasons.append(f"+{change_24h:.1f}% strong")
-            score += 1.0
-        elif change_24h >= 1.5:
-            reasons.append(f"+{change_24h:.1f}%")
+    if rsi_4h is not None:
+        if rsi_4h <= 30:
+            reasons.append(f"4h RSI oversold ({rsi_4h})")
+            score += 1.5
+        elif rsi_4h >= 70:
+            reasons.append(f"4h RSI overbought ({rsi_4h})")
+            score -= 1.5
+        elif rsi_4h <= 40:
+            reasons.append(f"4h RSI low ({rsi_4h})")
             score += 0.5
-        elif change_24h <= -4.0:
-            reasons.append(f"{change_24h:.1f}% weak")
-            score -= 1.0
-        elif change_24h <= -1.5:
-            reasons.append(f"{change_24h:.1f}%")
+        elif rsi_4h >= 60:
+            reasons.append(f"4h RSI elevated ({rsi_4h})")
             score -= 0.5
         else:
-            reasons.append(f"{change_24h:.1f}% flat")
+            reasons.append(f"4h RSI {rsi_4h}")
 
-    if score >= 1.5:
-        return "bullish", 4, reasons
-    if score >= 0.5:
-        return "mild bullish", 3, reasons
-    if score <= -1.5:
-        return "bearish", 4, reasons
-    if score <= -0.5:
-        return "mild bearish", 3, reasons
-    return "neutral", 2, reasons
+    if rsi_1d is not None:
+        if rsi_1d <= 35:
+            reasons.append(f"1d RSI supportive ({rsi_1d})")
+            score += 1.0
+        elif rsi_1d >= 65:
+            reasons.append(f"1d RSI elevated ({rsi_1d})")
+            score -= 1.0
+        else:
+            reasons.append(f"1d RSI {rsi_1d}")
+
+    if change_24h is not None:
+        if change_24h >= 4:
+            reasons.append(f"+{change_24h:.1f}% momentum")
+            score += 1.0
+        elif change_24h <= -4:
+            reasons.append(f"{change_24h:.1f}% pressure")
+            score -= 1.0
+        else:
+            reasons.append(f"{change_24h:+.1f}% 24h")
+
+    if funding is not None:
+        if funding > 0.05:
+            reasons.append(f"Funding +{funding:.3f}% (longs paying)")
+            score -= 0.5
+        elif funding < -0.02:
+            reasons.append(f"Funding {funding:.3f}% (shorts paying)")
+            score += 0.5
+        else:
+            reasons.append(f"Funding {funding:.3f}%")
+
+    conf = max(0, min(5, int(round(abs(score) + 1.5))))
+    if score >= 2.0:
+        bias = "mild long"
+    elif score >= 0.8:
+        bias = "lean long / watch"
+    elif score <= -2.0:
+        bias = "mild short / caution"
+    elif score <= -0.8:
+        bias = "lean short / watch"
+    else:
+        bias = "neutral"
+
+    return bias, conf, reasons
 
 def scan(
     symbols: Optional[List[str]] = None,
     timeframes: Optional[List[str]] = None,
     **kwargs
 ) -> Dict[str, Any]:
-    symbols = symbols or ["BTC", "ETH", "SOL", "SUI", "XRP"]
+    symbols = symbols or ["BTC", "ETH", "SOL", "SUI", "XRP", "XLM"]
     if isinstance(symbols, str):
         symbols = [s.strip().upper() for s in symbols.split(",")]
     else:
@@ -146,47 +185,61 @@ def scan(
     rows = []
 
     for sym in symbols:
-        closes = _fetch_klines(sym, interval="4h", limit=50)
-        rsi = _rsi(closes) if closes else None
+        closes_4h = _fetch_klines(sym, "4h", 100)
+        closes_1d = _fetch_klines(sym, "1d", 50)
+        rsi_4h = _rsi(closes_4h) if closes_4h else None
+        rsi_1d = _rsi(closes_1d) if closes_1d else None
+        funding = _fetch_funding(sym)
+
         t = ticker.get(sym, {})
         change = t.get("change_24h")
         price = t.get("price")
 
-        bias, conf, reasons = _bias(rsi, change)
+        bias, conf, reasons = _confluence(rsi_4h, rsi_1d, change, funding)
 
         price_str = f"${price:,.2f}" if price and price >= 1 else (f"${price:.4f}" if price else "–")
         chg_str = f"{change:+.1f}%" if change is not None else "–"
-        rsi_str = str(rsi) if rsi is not None else "–"
-        notes = " | ".join(reasons) if reasons else "No data"
+        rsi4_str = str(rsi_4h) if rsi_4h is not None else "–"
+        rsi1_str = str(rsi_1d) if rsi_1d is not None else "–"
+        fund_str = f"{funding:.3f}%" if funding is not None else "–"
+        notes = "; ".join(reasons[:3]) if reasons else "No data"
 
         signals.append({
             "symbol": sym,
             "price": price,
             "change_24h": change,
-            "rsi_4h": rsi,
+            "rsi_4h": rsi_4h,
+            "rsi_1d": rsi_1d,
+            "funding": funding,
             "bias": bias,
-            "confidence": conf / 5.0,
             "confluence": conf,
             "notes": notes,
             "reasons": reasons,
         })
 
-        rows.append(f"| {sym} | {price_str} | {chg_str} | {rsi_str} | {bias} | {conf}/5 | {notes} |")
+        rows.append(
+            f"| {sym} | {price_str} | {chg_str} | {rsi4_str} | {rsi1_str} | {fund_str} | {bias} | {conf}/5 | {notes} |"
+        )
 
     lines = [
-        "# Crypto TA Scan (Binance + RSI)",
+        "# Crypto TA Scan – Multi-TF RSI + Funding",
         f"Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')} UTC",
-        "Source: Binance public klines (4h) + 24h ticker",
+        "Source: Binance public klines (4h + 1d) + funding rate",
         "",
-        "| Symbol | Price | 24h | RSI(4h) | Bias | Conf | Notes |",
-        "|--------|-------|-----|---------|------|------|-------|",
+        "| Symbol | Price | 24h | RSI 4h | RSI 1d | Funding | Bias | Conf | Notes |",
+        "|--------|-------|-----|--------|--------|---------|------|------|-------|",
     ] + rows + [
         "",
-        "### Notes",
-        "- RSI(14) calculated on 4h closes.",
-        "- Bias combines RSI levels + 24h momentum.",
-        "- This is a lightweight confluence heuristic, not full multi-timeframe TA.",
-        "- Funding rate + multi-TF RSI planned next.",
+        "### Confluence Guide",
+        "- 0-1: Low conviction",
+        "- 2-3: Moderate / watch",
+        "- 4-5: Higher confluence (still experimental)",
+        "",
+        "### Method",
+        "- RSI(14) on 4h and 1d closes",
+        "- 24h price change",
+        "- Current perpetual funding rate",
+        "- Simple weighted score → bias",
         "",
         DISCLAIMER
     ]
@@ -195,11 +248,15 @@ def scan(
         "signals": signals,
         "summary": "\n".join(lines),
         "disclaimer": DISCLAIMER,
-        "version": "0.3.0",
+        "version": "0.4.0",
         "live_prices": bool(ticker),
         "has_rsi": any(s.get("rsi_4h") is not None for s in signals),
+        "has_funding": any(s.get("funding") is not None for s in signals),
         "generated_at": datetime.now(timezone.utc).isoformat()
     }
 
 def run(**kwargs) -> Dict[str, Any]:
     return scan(**kwargs)
+
+if __name__ == "__main__":
+    print(scan()["summary"])
