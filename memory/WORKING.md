@@ -1,19 +1,26 @@
 # Working Memory
 
-**Phase 6a live**
+**Phase 6 COMPLETE**
 
-## Phase 5 (complete)
-- OI delta, marketplace scaffolding, multi-repo helpers, SelfImprove patch templates
+## Delivered in Phase 6
+- Multi-repo status reporting via Researcher
+- Skill pack install flow scaffolding + pending_install notes
+- SelfImprove Phase 6: gated patch templates + **minimal code sketches** + pack install convention
+- Stronger multi_repo helpers
+- Phase 5 capabilities retained (OI delta, marketplace, weekly/daily workflows)
 
-## Phase 6 landed
-- Multi-repo **status reporting** via Researcher
-- Skill pack **install flow docs** (`marketplace/install.md`)
-- Stronger multi_repo helpers (list satellites, policy-aware status)
+## Full agent set
+1. Critic
+2. CryptoAnalyst
+3. XGrowth
+4. SelfImprove
+5. Researcher
 
-## Still finishing Phase 6
-- SelfImprove real minimal additive code diffs in draft PRs
-- Pack install Issue convention fully wired
-- Final Phase 6 complete stamp
+## System loop
+Issue → Label → Agent → Comment / Draft PR (safe paths) → Human review → Merge only when approved
 
-## Agents
-Critic · CryptoAnalyst · XGrowth · SelfImprove · Researcher
+## Possible Phase 7 directions
+- True auto-applied minimal diffs after human-approved label
+- Active multi-repo write orchestration
+- Pack marketplace with signed skill bundles
+- Historical confluence learning into LONG_TERM

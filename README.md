@@ -22,11 +22,15 @@ Full guide → [docs/USAGE.md](docs/USAGE.md)
 - **Critic** – safety & constitution reviews
 - **CryptoAnalyst** – live Binance data + multi-TF RSI + funding + volume + OI + OIΔ
 - **XGrowth** – LLM-powered thread drafts
-- **SelfImprove** – ranked proposals + draft PRs with files / notes / patch templates
+- **SelfImprove** – ranked proposals + draft PRs with files / notes / patch templates / minimal sketches
 - **Researcher** – open Issues summary + multi-repo status
 
 ## Current Status
-**Phase 6a** – Multi-repo status + skill-pack install scaffolding on top of Phase 5 complete system.
+**Phase 6 Complete** – Multi-repo status, skill-pack install scaffolding, and SelfImprove minimal gated code sketches.
+
+## Scheduled workflows
+- Daily Briefing
+- Weekly X-Growth Draft
 
 ## Architecture
 ```

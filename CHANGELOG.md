@@ -1,12 +1,13 @@
 # Changelog
 
-## Phase 6a – 2026-08-24
-- Multi-repo status reporting in Researcher
-- Skill pack install flow scaffolding (`marketplace/install.md`)
-- Stronger `core/multi_repo.py` helpers
+## Phase 6 Complete – 2026-08-24
+- SelfImprove: minimal gated code sketches + patch templates in draft PRs
+- Skill pack install Issue convention (`install pack <id>`) → pending_install notes
+- Researcher multi-repo status
+- Stronger multi_repo helpers + install docs
 
 ## Phase 5 Complete
-- OI delta, marketplace registry, multi-repo helpers, SelfImprove gated patch templates
+- OI delta, marketplace scaffolding, multi-repo helpers, SelfImprove patch templates
 
 ## Phase 4 Complete
 - Open Interest, weekly X-Growth, IMPROVE_NOTES, LONG_TERM, tests
