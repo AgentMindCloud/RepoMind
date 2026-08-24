@@ -1,18 +1,13 @@
-"""Self-Improve Agent – Phase 4 (draft PRs + gated SKILL.md micro-edits)."""
+"""Self-Improve Agent – Phase 5 (draft PRs + gated patch templates + skill notes)."""
 from __future__ import annotations
 from core.agent_base import BaseAgent
 from core.models import AgentRole, Task, ActionResult
 from core.skill_loader import SkillLoader
 from datetime import datetime, timezone
 
-# Map focus → optional safe SKILL.md path for micro-notes
 FOCUS_SKILL_MD = {
     "crypto": "skills/crypto/ta_scanner/SKILL.md",
     "x_growth": "skills/x_growth/thread_factory/SKILL.md",
-    "tests": None,
-    "agents": None,
-    "core": None,
-    "general": None,
 }
 
 class SelfImproveAgent(BaseAgent):
@@ -21,10 +16,8 @@ class SelfImproveAgent(BaseAgent):
             name="self_improve",
             system_prompt=(
                 "You are the Self-Improve agent of RepoMind. "
-                "Propose small, safe, modular improvements. "
-                "Prefer skills/ and agents/ over core/. Always respect the Constitution. "
-                "Never force-merge. You may open *draft* PRs only and only write to safe paths. "
-                "You may append short notes to skills/*/SKILL.md inside draft PRs."
+                "Propose small, safe, modular improvements. Prefer skills/ over core/. "
+                "Never force-merge. Draft PRs only. Attach gated patch templates."
             ),
             allowed_skills=["self_improve/code_evolver"],
             max_iterations=3,
@@ -33,39 +26,17 @@ class SelfImproveAgent(BaseAgent):
         super().__init__(role, github, skills or SkillLoader(), memory, llm)
 
     async def perceive(self, task: Task) -> dict:
-        return {
-            "title": task.title,
-            "body": task.body or "",
-            "issue": task.issue_number,
-            "labels": task.labels
-        }
+        return {"title": task.title, "body": task.body or "", "issue": task.issue_number, "labels": task.labels}
 
     async def plan(self, perception: dict) -> list:
         text = f"{perception.get('title','')} {perception.get('body','')}".lower()
-        wants_pr = any(w in text for w in ["pr", "pull request", "draft", "implement", "open pr", "create pr"])
+        wants_pr = any(w in text for w in ["pr", "pull request", "draft", "implement", "open pr", "create pr", "patch"])
         return ["call_code_evolver", "format_comment", "maybe_open_draft_pr"] if wants_pr else ["call_code_evolver", "format_comment"]
 
-    def _skill_md_note(self, focus: str, summary_md: str, ts: str) -> tuple:
-        """Return (path, content) for a gated SKILL.md micro-note, or (None, None)."""
-        path = FOCUS_SKILL_MD.get(focus)
-        if not path:
-            return None, None
-        note = (
-            f"\n\n---\n\n"
-            f"## Self-Improve note ({ts})\n\n"
-            f"Focus: `{focus}`\n\n"
-            f"Latest proposals (draft only):\n\n"
-            f"{summary_md[:800]}\n\n"
-            f"_This note was added by SelfImproveAgent inside a draft PR. "
-            f"Nothing is live until a human merges._\n"
-        )
-        return path, note
-
     async def act(self, plan: list, task: Task) -> ActionResult:
-        result = {"summary": "No proposals", "proposals": [], "rationale": "n/a"}
+        result = {"summary": "No proposals", "proposals": [], "rationale": "n/a", "extra_files": {}}
         focus = "general"
         text = f"{(task.body or '')} {task.title}".lower()
-
         try:
             from skills.self_improve.code_evolver.implementation import evolve
             if "test" in text:
@@ -78,106 +49,76 @@ class SelfImproveAgent(BaseAgent):
                 focus = "agents"
             elif "core" in text:
                 focus = "core"
-            result = evolve(focus=focus, task=task.title)
+            result = evolve(focus=focus, task=task.title, llm=self.llm)
         except Exception as e:
-            result = {"summary": f"Could not load evolver: {e}", "proposals": [], "rationale": str(e)}
+            result = {"summary": f"Could not load evolver: {e}", "proposals": [], "rationale": str(e), "extra_files": {}}
 
         summary_md = result.get("summary", "No proposals generated.")
         rationale = result.get("rationale", "n/a")
         proposals = result.get("proposals", [])
-
-        wants_pr = any(w in text for w in ["pr", "pull request", "draft", "implement", "open pr", "create pr"])
+        evolver_files = result.get("extra_files") or result.get("safe_files") or {}
+        wants_pr = any(w in text for w in ["pr", "pull request", "draft", "implement", "open pr", "create pr", "patch"])
         pr_url = None
 
         if wants_pr and self.github and hasattr(self.github, "create_draft_pr_from_proposal"):
             try:
                 ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M")
-                memory_note = (
-                    f"# Self-Improve run {ts}\n\n"
-                    f"Issue #{task.issue_number}\n"
-                    f"Focus: {focus}\n"
-                    f"Proposals generated: {len(proposals) if isinstance(proposals, list) else 'n/a'}\n"
+                extra = {}
+                if isinstance(evolver_files, dict):
+                    extra.update(evolver_files)
+                extra[f"memory/self_improve_runs/{ts}.md"] = (
+                    f"# Self-Improve run {ts}\n\nIssue #{task.issue_number}\nFocus: {focus}\nPhase: 5\n"
                 )
-
-                extra = {f"memory/self_improve_runs/{ts}.md": memory_note}
-
-                # Gated SKILL.md micro-edit (append-style note content)
-                skill_path, skill_note = self._skill_md_note(focus, summary_md, ts)
-                if skill_path and skill_note:
-                    # Write a companion note file rather than overwriting the whole SKILL.md blindly
-                    # Safer: create a skills/.../IMPROVE_NOTES.md next to SKILL.md
+                skill_path = FOCUS_SKILL_MD.get(focus)
+                if skill_path:
                     note_path = skill_path.replace("SKILL.md", "IMPROVE_NOTES.md")
                     extra[note_path] = (
-                        f"# Improve Notes – {skill_path}\n\n"
-                        f"{skill_note}\n"
+                        f"# Improve Notes – {skill_path}\n\n## {ts}\nFocus: `{focus}`\n\n{summary_md[:1000]}\n\n_Draft only._\n"
                     )
-
-                # Also append a short LONG_TERM entry
-                extra[f"memory/LONG_TERM.md"] = (
-                    f"# Long-Term Memory\n\n"
-                    f"## {ts} – SelfImprove on Issue #{task.issue_number}\n"
-                    f"- Focus: {focus}\n"
-                    f"- Draft PR opened with proposals\n"
-                    f"- Safe paths only\n\n"
+                extra[f"proposals/patches/{ts}.md"] = (
+                    f"# Gated Code Patch Template – {ts}\n\n"
+                    f"Issue: #{task.issue_number} – {task.title}\nFocus: {focus}\n\n"
+                    f"## Direction\n\n{summary_md[:1200]}\n\n"
+                    f"## Illustrative diff\n\n```diff\n# Target: skills/.../implementation.py\n# + # Phase 5 gated patch\n# + # Human review required before merge\n```\n\n"
+                    f"### Safety\n- Draft PR only\n- Never auto-applied to main\n- Prefer minimal diffs under skills/\n"
                 )
-
                 pr_body = (
-                    f"## Self-Improve Draft PR\n\n"
-                    f"Triggered by Issue #{task.issue_number}: **{task.title}**\n\n"
-                    f"{summary_md}\n\n"
-                    f"### Safety\n"
-                    f"- This is a **draft** PR only\n"
-                    f"- Writes only to safe paths (`proposals/`, `memory/`, `skills/*/IMPROVE_NOTES.md`)\n"
-                    f"- Requires human review before any merge to main\n\n"
+                    f"## Self-Improve Draft PR (Phase 5)\n\n"
+                    f"Triggered by Issue #{task.issue_number}: **{task.title}**\n\n{summary_md}\n\n"
+                    f"### Safety\n- **Draft** only\n- Includes proposals, patch templates, optional IMPROVE_NOTES\n- Safe paths only\n\n"
                     f"### Rationale\n{rationale}\n"
                 )
                 pr_url = self.github.create_draft_pr_from_proposal(
                     title=f"[Self-Improve] {task.title[:60]}",
                     body=pr_body,
                     branch_prefix="self-improve",
-                    extra_files=extra
+                    extra_files=extra,
                 )
             except Exception as e:
                 pr_url = f"(failed to open draft PR: {e})"
 
-        lines = [
-            f"**Self-Improve Agent** (focus: `{focus}`)",
-            "",
-            summary_md,
-            "",
-            f"_Rationale: {rationale}_",
-            "",
-        ]
+        lines = [f"**Self-Improve Agent** (focus: `{focus}` · Phase 5)", "", summary_md, "", f"_Rationale: {rationale}_", ""]
         if pr_url and isinstance(pr_url, str) and pr_url.startswith("http"):
-            lines += [
-                "### Draft PR opened (with real proposal + skill notes)",
-                f"→ {pr_url}",
-                "",
-                "Review the draft PR. Nothing will be merged until you approve.",
-                "",
-            ]
+            lines += ["### Draft PR opened (proposals + patch templates)", f"→ {pr_url}", "", "Review carefully. Nothing merges until you approve.", ""]
         elif pr_url:
             lines += ["### Draft PR attempt", str(pr_url), ""]
-
         lines += [
             "### Next actions for you",
-            "1. Review the proposals and the draft PR",
-            "2. Reply with more context if you want a deeper implementation",
+            "1. Review proposals and patch templates under proposals/patches/",
+            "2. Edit the draft PR if you want real implementation code",
             "3. Add `human-approved` only when ready to merge",
             "",
-            "_Agents never force-merge. Draft PRs only. Safe paths only._"
+            "_Agents never force-merge. Draft PRs only._"
         ]
-
         comment = "\n".join(lines)
         if self.github:
             try:
                 self.github.comment_on_issue(task.issue_number, comment)
             except Exception:
                 pass
-
         return ActionResult(
             success=True,
-            summary=(summary_md[:200] + (f" | Draft PR: {pr_url}" if pr_url else "")),
+            summary=(summary_md[:180] + (f" | PR: {pr_url}" if pr_url else "")),
             comments=[comment],
             output={"result": result, "pr_url": pr_url}
         )
