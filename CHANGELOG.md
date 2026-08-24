@@ -1,16 +1,17 @@
 # Changelog
 
-## Phase 2d – 2026-08-24
+## Phase 2e – 2026-08-24
+- SelfImproveAgent can open **real draft PRs** when the Issue requests it
+- GitHubClient: added `create_branch` and `create_draft_pr_from_proposal`
+- Draft PRs are always created as drafts and never auto-merged
+- Placeholder file written under `proposals/` so the PR is not empty
 
-### CryptoTA v0.4.0
-- Multi-timeframe RSI: 4h **and** 1d
-- Live Binance funding rate (USDT-M premiumIndex)
-- Stronger confluence scoring (RSI + 24h momentum + funding)
-- Updated markdown table with RSI 4h / RSI 1d / Funding columns
+## Phase 2d – 2026-08-24
+- CryptoTA: Multi-timeframe RSI (4h + 1d) + live funding rate
+- Improved confluence scoring
 
 ## Phase 2c
-- Binance 4h klines + RSI(14)
-- 24h momentum confluence
+- Binance klines + RSI(14) on 4h
 
-## Phase 2b / 2a
-- Live prices, SelfImprove upgrades, LLM-aware X-Growth, clear USAGE docs
+## Phase 2b / 2a / 1.x
+- Live prices, symbol parsing, LLM-aware X-Growth, four agents, USAGE guide, CI

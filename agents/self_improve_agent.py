@@ -1,4 +1,4 @@
-"""Self-Improve Agent – Phase 2b (structured, prioritized, phone-friendly)."""
+"""Self-Improve Agent – Phase 2e (can open real draft PRs)."""
 from __future__ import annotations
 from core.agent_base import BaseAgent
 from core.models import AgentRole, Task, ActionResult
@@ -12,11 +12,11 @@ class SelfImproveAgent(BaseAgent):
                 "You are the Self-Improve agent of RepoMind. "
                 "Propose small, safe, modular improvements. "
                 "Prefer skills/ and agents/ over core/. Always respect the Constitution. "
-                "Never force-merge. Output clear, actionable, prioritized proposals."
+                "Never force-merge. You may open *draft* PRs only."
             ),
             allowed_skills=["self_improve/code_evolver"],
             max_iterations=3,
-            tools=["evolve", "comment"]
+            tools=["evolve", "comment", "create_draft_pr"]
         )
         super().__init__(role, github, skills or SkillLoader(), memory, llm)
 
@@ -29,15 +29,17 @@ class SelfImproveAgent(BaseAgent):
         }
 
     async def plan(self, perception: dict) -> list:
-        return ["call_code_evolver", "format_comment"]
+        text = f"{perception.get('title','')} {perception.get('body','')}".lower()
+        wants_pr = any(w in text for w in ["pr", "pull request", "draft", "implement", "open pr", "create pr"])
+        return ["call_code_evolver", "format_comment", "maybe_open_draft_pr"] if wants_pr else ["call_code_evolver", "format_comment"]
 
     async def act(self, plan: list, task: Task) -> ActionResult:
-        skill_fn = None
-        if self.skills:
-            try:
-                skill_fn = self.skills.load_implementation("self_improve/code_evolver")
-            except Exception:
-                skill_fn = None
+        # Load skill
+        try:
+            from skills.self_improve.code_evolver.implementation import evolve
+        except Exception as e:
+            evolve = None
+            result = {"summary": f"Could not load evolver: {e}", "proposals": [], "rationale": str(e)}
 
         focus = "general"
         text = f"{(task.body or '')} {task.title}".lower()
@@ -52,35 +54,64 @@ class SelfImproveAgent(BaseAgent):
         elif "core" in text:
             focus = "core"
 
-        if skill_fn:
-            result = skill_fn(focus=focus, task=task.title)
-        else:
-            # Fallback import
-            try:
-                from skills.self_improve.code_evolver.implementation import evolve
-                result = evolve(focus=focus, task=task.title)
-            except Exception as e:
-                result = {
-                    "proposal": f"Could not load evolver: {e}",
-                    "proposals": [],
-                    "summary": "Skill load failed",
-                    "rationale": str(e)
-                }
+        if evolve:
+            result = evolve(focus=focus, task=task.title)
 
-        # Build clean mobile-friendly comment
+        summary_md = result.get("summary", "No proposals generated.")
+        rationale = result.get("rationale", "n/a")
+
+        # Decide whether to open a draft PR
+        wants_pr = any(w in text for w in ["pr", "pull request", "draft", "implement", "open pr", "create pr"])
+        pr_url = None
+
+        if wants_pr and self.github and hasattr(self.github, "create_draft_pr_from_proposal"):
+            try:
+                pr_body = (
+                    f"## Self-Improve Draft PR\n\n"
+                    f"Triggered by Issue #{task.issue_number}: **{task.title}**\n\n"
+                    f"{summary_md}\n\n"
+                    f"### Safety\n"
+                    f"- This is a **draft** PR only\n"
+                    f"- No automatic merge\n"
+                    f"- Requires human review + `human-approved` label before any merge to main\n\n"
+                    f"### Rationale\n{rationale}\n"
+                )
+                pr_url = self.github.create_draft_pr_from_proposal(
+                    title=f"[Self-Improve] {task.title[:60]}",
+                    body=pr_body,
+                    branch_prefix="self-improve"
+                )
+            except Exception as e:
+                pr_url = f"(failed to open draft PR: {e})"
+
+        # Build comment
         lines = [
             f"**Self-Improve Agent** (focus: `{focus}`)",
             "",
-            result.get("summary", "No summary generated."),
+            summary_md,
             "",
-            f"_Rationale: {result.get('rationale', 'n/a')}_",
+            f"_Rationale: {rationale}_",
             "",
+        ]
+
+        if pr_url and pr_url.startswith("http"):
+            lines += [
+                f"### Draft PR opened",
+                f"→ {pr_url}",
+                "",
+                "Review the draft PR. Nothing will be merged until you approve.",
+                "",
+            ]
+        elif pr_url:
+            lines += [f"### Draft PR attempt", str(pr_url), ""]
+
+        lines += [
             "### Next actions for you",
-            "1. Pick the highest-priority idea you like",
-            "2. Reply on this Issue with ‘do #1’ or ‘do the crypto one’",
-            "3. Or create a new Issue labeled `self-improve` with more context",
+            "1. Review the proposals (and the draft PR if one was opened)",
+            "2. Reply with ‘implement #1’ or similar if you want more work",
+            "3. Add `human-approved` only when you are ready for a real merge",
             "",
-            "_Proposals only – nothing is changed until you approve._"
+            "_Agents never force-merge. Draft PRs only._"
         ]
 
         comment = "\n".join(lines)
@@ -93,7 +124,7 @@ class SelfImproveAgent(BaseAgent):
 
         return ActionResult(
             success=True,
-            summary=result.get("summary", "Self-improve proposals generated")[:300],
+            summary=(summary_md[:200] + (f" | Draft PR: {pr_url}" if pr_url else "")),
             comments=[comment],
-            output=result
+            output={"result": result, "pr_url": pr_url}
         )
