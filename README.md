@@ -1,42 +1,36 @@
 # RepoMind
 
-**The multi-agent operating system that lives entirely inside a GitHub repository.**
+**GitHub-native multi-agent OS**  
+The repository *is* the runtime. Issues = tasks. Actions = compute. Agents evolve the system.
 
-Issues = tasks.  
-PRs = self-evolution.  
-Actions = compute.  
-Files + memory = long-term state.
+## Status: Phase 2 Complete
 
-Built phone-first from Saigon by a solo Grok/xAI builder.
+Five specialized agents are live and routable:
 
-## How to use it (30 seconds)
+| Agent         | What it does                                      |
+|---------------|---------------------------------------------------|
+| Critic        | Safety & constitution reviews                     |
+| CryptoAnalyst | Live Binance prices + multi-TF RSI + funding      |
+| XGrowth       | High-signal X thread drafts (uses real Grok)      |
+| SelfImprove   | Ranked proposals + **real draft PRs** when asked  |
+| Researcher    | Read-only summary of all open Issues              |
 
-1. Open or create an Issue.
-2. Add a label: `task`, `crypto`, `x-growth`, or `self-improve`.
-3. Comment `/run` (or just wait / re-add the label).
-4. The matching agent comments back with a draft or analysis.
+## How to use (30-second version)
 
-Full simple guide → [docs/USAGE.md](docs/USAGE.md)
+1. Open or create an Issue  
+2. Add a label (`crypto`, `x-growth`, `self-improve`, `research`, …)  
+3. Comment `/run` or trigger the Action  
+4. Read the agent comment (and any draft PR)
 
-## Current Agents
-- **Critic** (default) – safety & constitution reviews
-- **CryptoAnalyst** – live multi-asset scans + RSI confluence (Binance)
-- **XGrowth** – high-signal thread drafts (LLM-powered)
-- **SelfImprove** – ranked, concrete improvement proposals
+Full guide → [docs/USAGE.md](docs/USAGE.md)
 
-## Current Status
-**Phase 2c** – Real Grok power + live market data + RSI.  
-CryptoTA now pulls Binance klines and calculates RSI(14) confluence.
+## Key features
+- Phone-first workflow
+- Real market data (no private keys needed for public endpoints)
+- Agents can open **draft** PRs (never auto-merge)
+- Everything lives inside this single GitHub repository
 
-## Architecture
-```
-core/          agent base, orchestrator, GitHub client, safety, LLM, skill_loader
-agents/        Critic, CryptoAnalyst, XGrowth, SelfImprove (+ base_runner)
-skills/        modular skill packs (crypto TA now with RSI)
-contracts/     constitutions & agent roles
-memory/        persistent state
-.github/       the actual runtime (Actions)
-```
-
----
-*RepoMind is part of the AgentMindCloud ecosystem.*
+## Safety
+- Constitution + human-approved path for core changes
+- Agents never force-merge
+- Research / crypto outputs always carry disclaimers

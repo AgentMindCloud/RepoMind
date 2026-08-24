@@ -23,19 +23,19 @@ def main():
         llm = LLMClient()
         orch = Orchestrator(github=github, llm=llm)
 
-        print(f"RepoMind runner ready. Registered agents: {list(orch.agents.keys())}")
+        agents = list(orch.agents.keys())
+        print(f"RepoMind runner ready. Registered agents: {agents}")
 
         if args.issue:
-            task = github.get_task(args.issue) if hasattr(github, "get_task") else Task(
-                issue_number=args.issue, title=f"Issue #{args.issue}", body="", labels=["task"]
-            )
-            print(f"Processing issue #{task.issue_number}: {task.title}")
+            task = github.get_task(args.issue)
+            print(f"Processing issue #{task.issue_number}: {task.title} | labels={task.labels}")
             result = orch.run_task_sync(task)
             print("Result:", result.summary)
         else:
-            tasks = github.get_open_tasks(labels=["task", "agent", "critic", "crypto", "x-growth"])
+            labels = ["task", "agent", "critic", "crypto", "x-growth", "self-improve", "research"]
+            tasks = github.get_open_tasks(labels=labels)
             print(f"Found {len(tasks)} candidate tasks")
-            for t in tasks[:5]:  # safety limit
+            for t in tasks[:5]:
                 print(f"→ #{t.issue_number} {t.title}")
                 result = orch.run_task_sync(t)
                 print("  ", result.summary)

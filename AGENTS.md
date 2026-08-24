@@ -1,11 +1,11 @@
-# AGENTS.md
+# RepoMind Agents
 
-This is a self-evolving multi-agent OS that lives in the repository itself.
+| Agent            | Labels                              | Role                                              |
+|------------------|-------------------------------------|---------------------------------------------------|
+| Critic           | `task`, `agent`, `critic`, `review` | Default safety / constitution reviews             |
+| CryptoAnalyst    | `crypto`, `ta`, `scan`              | Live Binance multi-TF RSI + funding scans         |
+| XGrowth          | `x-growth`, `growth`, `thread`      | High-signal thread drafts (LLM-aware)             |
+| SelfImprove      | `self-improve`, `evolve`            | Ranked proposals + real draft PRs when asked      |
+| Researcher       | `research`, `researcher`, `summary` | Read-only summary of open Issues                  |
 
-Rules for any coding agent working here:
-- Prefer small modular changes
-- Always update tests when changing behavior
-- Never commit secrets or .env
-- Follow contracts/constitution.yaml
-- Agents propose via PR; humans (or labeled approval) merge
-- Keep files phone-friendly (clear, small, well-commented)
+All agents comment on the Issue. Nothing is auto-merged.

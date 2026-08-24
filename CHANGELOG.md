@@ -1,17 +1,25 @@
 # Changelog
 
-## Phase 2e – 2026-08-24
-- SelfImproveAgent can open **real draft PRs** when the Issue requests it
-- GitHubClient: added `create_branch` and `create_draft_pr_from_proposal`
-- Draft PRs are always created as drafts and never auto-merged
-- Placeholder file written under `proposals/` so the PR is not empty
+## Phase 2 Complete – 2026-08-24
 
-## Phase 2d – 2026-08-24
-- CryptoTA: Multi-timeframe RSI (4h + 1d) + live funding rate
-- Improved confluence scoring
+### Phase 2e
+- SelfImprove can open real draft PRs
+- GitHubClient: `create_branch` + `create_draft_pr_from_proposal`
 
-## Phase 2c
-- Binance klines + RSI(14) on 4h
+### Phase 2d
+- CryptoTA: Multi-TF RSI (4h + 1d) + live funding rate
 
-## Phase 2b / 2a / 1.x
-- Live prices, symbol parsing, LLM-aware X-Growth, four agents, USAGE guide, CI
+### Phase 2c
+- Binance klines + RSI(14)
+
+### Phase 2b / 2a
+- Symbol parsing, stronger SelfImprove, live prices, LLM-aware X-Growth
+
+### Phase 2 Finale
+- **Researcher agent + issue_summarizer skill** added
+- Full registration in orchestrator and base_runner
+- AGENTS.md, memory, and docs updated
+- Phase 2 officially complete
+
+## Phase 1
+- Core multi-agent runtime, four original agents, USAGE guide, CI, phone workflow

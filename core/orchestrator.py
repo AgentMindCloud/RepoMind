@@ -15,7 +15,6 @@ class Orchestrator:
         self.skills = SkillLoader()
         self.agents: Dict[str, BaseAgent] = {}
 
-        # Lazy registration of known agents
         self._register_default_agents()
 
     def _register_default_agents(self):
@@ -45,6 +44,13 @@ class Orchestrator:
         except Exception as e:
             print(f"Could not register SelfImproveAgent: {e}")
 
+        try:
+            from agents.researcher_agent import ResearcherAgent
+            self.register_agent("researcher", ResearcherAgent(github=self.github, llm=self.llm))
+            self.register_agent("research", ResearcherAgent(github=self.github, llm=self.llm))
+        except Exception as e:
+            print(f"Could not register ResearcherAgent: {e}")
+
     def register_agent(self, name: str, agent: BaseAgent):
         self.agents[name] = agent
 
@@ -58,8 +64,10 @@ class Orchestrator:
             return "x_growth"
         if any(x in labels for x in ["self-improve", "evolve", "improve"]):
             return "self_improve"
+        if any(x in labels for x in ["research", "researcher", "summary", "status"]):
+            return "researcher"
         if any(x in labels for x in ["agent", "task"]):
-            return "critic"  # default to critic for safety on generic tasks
+            return "critic"
         return "critic"
 
     async def run_task(self, task: Task) -> ActionResult:
@@ -76,7 +84,6 @@ class Orchestrator:
 
         result = await agent.run(task)
 
-        # Always try to surface comments
         if result.comments and self.github:
             for c in result.comments:
                 try:
