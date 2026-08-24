@@ -1,15 +1,21 @@
 # Changelog
 
-## Phase 3a – 2026-08-24
-- Added **Daily Briefing** GitHub Action (cron + manual)
-- CryptoTA now includes **24h quote volume** in confluence table
-- Phase 3 scaffolding started
+## Phase 3 Complete – 2026-08-24
+
+### Phase 3 final
+- SelfImprove draft PRs now include **real proposal content** + memory run notes
+- base_runner startup self-check (agents, secrets, API)
+- Safe-path enforcement for agent file writes
+
+### Phase 3b
+- GitHubClient: `create_draft_pr_with_files` + `extra_files` support
+
+### Phase 3a
+- Daily Briefing workflow (cron + manual)
+- CryptoTA: 24h quote volume in confluence table
 
 ## Phase 2 Complete – 2026-08-24
-- Researcher agent + issue summarizer
-- SelfImprove draft PRs
-- Multi-TF RSI + funding rate
-- Full five-agent system
+- Five agents, multi-TF RSI + funding, draft PRs, Researcher, USAGE guide
 
 ## Phase 1
-- Core multi-agent runtime, phone workflow, USAGE guide
+- Core multi-agent runtime, phone workflow
